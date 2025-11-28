@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id   Int     @id @default(autoincrement())
+  email     String  @unique @db.VarChar(255)
+  password  String
+  name      String  @db.VarChar(255)
+  profile   Profile?
+  role      String  @default("USER") @db.VarChar(50)
+  addresses UserAddress[]
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt @default(now())
+  @@map(name: "user")
+}
+
+model Profile {
+  profile_id     Int    @id @default(autoincrement())
+  bio    String 
+  avatar String
+  user_id Int   @unique
+  user   User   @relation(fields: [user_id], references: [user_id])
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt @default(now())
+  @@map(name: "user_profile")
+}
+
+model UserAddress {
+  id        Int     @id @default(autoincrement())
+  street    String
+  city      String
+  state     String
+  country   String
+  zip_code  String
+  user_id   Int
+  user      User    @relation(fields: [user_id], references: [user_id])
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt @default(now())
+  @@map(name: "user_addresses")
+}

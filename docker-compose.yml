@@ -1,0 +1,30 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: furniture_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: furniture_for_u
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin1234
+    ports:
+      - "5666:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: furniture_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: maethichai8968@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
