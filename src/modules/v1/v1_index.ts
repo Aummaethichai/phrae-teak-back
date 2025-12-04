@@ -1,8 +1,7 @@
-// import { Elysia } from 'elysia'
-// import { authModule } from './auth'
-// import { productModule } from './product'
+import { Elysia } from 'elysia';
+import testModule from './test';
 
-// // สร้าง root module ของ v1 และใช้ prefix /v1
-// export const v1Module = new Elysia({ prefix: '/api/v1' })
-//   .use(authModule)
-//   .use(productModule)
+const v1Routes = new Elysia({ prefix: '/api/v1' })
+  .use(testModule);
+
+export default v1Routes;

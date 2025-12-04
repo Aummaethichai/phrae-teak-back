@@ -1,11 +1,8 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
@@ -14,40 +11,99 @@ datasource db {
   // url      = env("DATABASE_URL")
 }
 
-model User {
-  user_id   Int     @id @default(autoincrement())
-  email     String  @unique @db.VarChar(255)
-  password  String
-  name      String  @db.VarChar(255)
-  profile   Profile?
-  role      String  @default("USER") @db.VarChar(50)
-  addresses UserAddress[]
-  created_at  DateTime   @default(now())
-  updated_at  DateTime   @updatedAt @default(now())
-  @@map(name: "user")
+enum Role {
+  USER
+  ADMIN
 }
 
-model Profile {
-  profile_id     Int    @id @default(autoincrement())
-  bio    String 
-  avatar String
-  user_id Int   @unique
-  user   User   @relation(fields: [user_id], references: [user_id])
-  created_at  DateTime   @default(now())
-  updated_at  DateTime   @updatedAt @default(now())
-  @@map(name: "user_profile")
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  email      String      @unique
+  name       String
+  password   String? // Optional for Google Auth users
+  googleId   String?     @unique @map("google_id")
+  role       Role        @default(USER)
+  addresses  UserAddress[]
+  cartItems  CartItem[]
+  orders     Order[]
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model Product {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?
+  price       Int // Store price in cents to avoid floating point issues
+  imageUrl    String?     @map("image_url")
+  stock       Int         @default(0)
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  @@map("products")
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  quantity  Int      @default(1)
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId Int      @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, productId]) // A user can only have one entry for each product in their cart
+  @@map("cart_items")
 }
 
 model UserAddress {
-  id        Int     @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   street    String
   city      String
   state     String
   country   String
-  zip_code  String
-  user_id   Int
-  user      User    @relation(fields: [user_id], references: [user_id])
-  created_at  DateTime   @default(now())
-  updated_at  DateTime   @updatedAt @default(now())
-  @@map(name: "user_addresses")
+  zipCode   String   @map("zip_code")
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("user_addresses")
+}
+
+model Order {
+  id         Int         @id @default(autoincrement())
+  userId     Int         @map("user_id")
+  user       User        @relation(fields: [userId], references: [id])
+  totalPrice Int         @map("total_price") // Store in cents
+  status     OrderStatus @default(PENDING)
+  items      OrderItem[]
+  createdAt  DateTime    @default(now()) @map("created_at")
+  updatedAt  DateTime    @updatedAt @map("updated_at")
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int      @map("order_id")
+  order     Order    @relation(fields: [orderId], references: [id])
+  productId Int      @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Int // Price at the time of purchase, in cents
+
+  @@map("order_items")
 }
