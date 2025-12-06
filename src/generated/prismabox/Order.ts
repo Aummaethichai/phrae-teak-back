@@ -37,6 +37,7 @@ export const OrderRelations = t.Object(
         role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
           additionalProperties: false,
         }),
+        profile_image: __nullable__(t.String()),
         createdAt: t.Date(),
         updatedAt: t.Date(),
       },

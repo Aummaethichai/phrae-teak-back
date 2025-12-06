@@ -14,6 +14,7 @@ export const UserPlain = t.Object(
     role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
       additionalProperties: false,
     }),
+    profile_image: __nullable__(t.String()),
     createdAt: t.Date(),
     updatedAt: t.Date(),
   },
@@ -89,6 +90,7 @@ export const UserPlainInputCreate = t.Object(
         additionalProperties: false,
       }),
     ),
+    profile_image: t.Optional(__nullable__(t.String())),
   },
   { additionalProperties: false },
 );
@@ -103,6 +105,7 @@ export const UserPlainInputUpdate = t.Object(
         additionalProperties: false,
       }),
     ),
+    profile_image: t.Optional(__nullable__(t.String())),
   },
   { additionalProperties: false },
 );
@@ -260,6 +263,7 @@ export const UserWhere = t.Partial(
           role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
             additionalProperties: false,
           }),
+          profile_image: t.String(),
           createdAt: t.Date(),
           updatedAt: t.Date(),
         },
@@ -313,6 +317,7 @@ export const UserWhereUnique = t.Recursive(
               role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
                 additionalProperties: false,
               }),
+              profile_image: t.String(),
               createdAt: t.Date(),
               updatedAt: t.Date(),
             },
@@ -334,6 +339,7 @@ export const UserSelect = t.Partial(
       password: t.Boolean(),
       googleId: t.Boolean(),
       role: t.Boolean(),
+      profile_image: t.Boolean(),
       addresses: t.Boolean(),
       cartItems: t.Boolean(),
       orders: t.Boolean(),
@@ -374,6 +380,9 @@ export const UserOrderBy = t.Partial(
         additionalProperties: false,
       }),
       googleId: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      profile_image: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
       createdAt: t.Union([t.Literal("asc"), t.Literal("desc")], {

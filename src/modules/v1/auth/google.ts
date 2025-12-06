@@ -1,8 +1,30 @@
-import { Elysia } from "elysia";
-import { prisma } from "../../../prisma";
+import { Elysia, redirect } from "elysia";
+import { cookie } from "@elysiajs/cookie";
+import { v4 as uuidv4 } from "uuid";
+import {
+  UserInputCreate,
+  UserPlain,
+  UserPlainInputCreate,
+} from "../../../generated/prismabox/User";
+import { prisma } from "../../../config/prisma";
+import { BadRequestError, InternalServerError } from "../../../utils/errors";
+import {
+  createSession,
+  deleteSession,
+  ElysiaCookie,
+} from "./session.service";
 
-export const googleAuth = new Elysia({ prefix: "/auth/google" })
-
+interface userGoogle {
+  id: number;
+  email: string;
+  name: string;
+  password: string;
+  googleId: string;
+  role: string;
+  profile_image: string;
+}
+export const googleAuth = new Elysia({ prefix: "/google" })
+  .use(cookie())
   // Step 1: Redirect ไป Google
   .get("/login", ({ redirect }) => {
     const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
@@ -16,15 +38,13 @@ export const googleAuth = new Elysia({ prefix: "/auth/google" })
   })
 
   // Step 2: รับ callback + ดึง token
-  .get("/callback", async ({ query, set, session }) => {
+  .get("/callback", async ({ query, cookie }) => {
     const { code } = query;
 
     if (!code) {
-      set.status = 400;
-      return { error: "Missing code" };
+      throw new BadRequestError("Authorization code is missing from callback.");
     }
 
-    // 1) แลก token
     const tokenJson = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -33,51 +53,57 @@ export const googleAuth = new Elysia({ prefix: "/auth/google" })
         client_secret: process.env.GOOGLE_CLIENT_SECRET!,
         redirect_uri: process.env.GOOGLE_REDIRECT_URI!,
         grant_type: "authorization_code",
-        code
-      })
+        code,
+      }),
     }).then((r) => r.json());
 
     if (!tokenJson.access_token) {
-      set.status = 400;
-      return { error: "Cannot get access token" };
+      throw new BadRequestError("Failed to retrieve access token from Google.");
     }
 
     // 2) ดึงข้อมูล user จาก Google
     const googleUser = await fetch(
       "https://www.googleapis.com/oauth2/v3/userinfo",
       {
-        headers: { Authorization: `Bearer ${tokenJson.access_token}` }
+        headers: { Authorization: `Bearer ${tokenJson.access_token}` },
       }
     ).then((r) => r.json());
 
-    // 3) เช็ค user ใน DB
     let user = await prisma.user.findUnique({
-      where: { email: googleUser.email }
+      where: { email: googleUser.email },
     });
 
-    // 4) ถ้าไม่มีให้สร้าง
     if (!user) {
       user = await prisma.user.create({
         data: {
           email: googleUser.email,
           name: googleUser.name,
-          avatar: googleUser.picture
-        }
+          profile_image: googleUser.picture,
+          // คุณอาจต้องการกำหนด role เริ่มต้นให้ user ใหม่ที่นี่
+          role: "USER",
+        },
       });
     }
+    // 5) สร้าง session, เก็บใน Redis, และตั้งค่า cookie
+    if (!user) {
+      throw new InternalServerError("User not found after creation or lookup.");
+    }
 
-    // 5) เก็บ user id ลง cookie session
-    session.login(user.id);
+    await createSession({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        password: user.password || "", // Assuming password might be null for Google users
+        googleId: user.googleId || "", // Assuming googleId might be null
+        role: user.role,
+        profile_image: user.profile_image || "", // Assuming profile_image might be null
+    }, cookie as unknown as ElysiaCookie);
 
-    return `
-      <script>
-        window.location.href = "/"; // redirect ไปหน้า dashboard/frontend
-      </script>
-    `;
+    return redirect(`${process.env.FRONTEND_URL}`);
   })
 
   // ใช้สำหรับ logout
-  .get("/logout", ({ session }) => {
-    session.logout();
-    return { message: "logged out" };
-  });
+  // .get("/logout", async ({ cookie }) => {
+  //   await deleteSession(cookie);
+  //   return { success: true, message: "Logged out successfully" };
+  // });

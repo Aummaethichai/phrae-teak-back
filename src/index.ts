@@ -3,6 +3,7 @@ import { cors } from "@elysiajs/cors";
 import { config } from "dotenv";
 import { logger } from "./utils/logger";
 import v1Routes from "./modules/v1/v1_index";
+import { errorHandler } from "./utils/errorHandler";
 // Core Middlewares & Plugins
 // import { authMiddleware } from './core/middlewares/auth';
 
@@ -17,6 +18,13 @@ config();
 const port = process.env.APP_ENV === "production" ? (process.env.PORT ?? "8080") : "8080";
 
 const app = new Elysia()
+  // .onError(({ code, error }) => {
+  //   console.log('Global error:', error)
+  //   return {
+  //     message: error.message,
+  //     code
+  //   }
+  // })
   .use(
     // cors()
     cors({
@@ -26,6 +34,7 @@ const app = new Elysia()
       credentials: true,
     })
   ) // Plugin สำหรับจัดการ Cross-Origin Resource Sharing
+  .use(errorHandler) // Centralized error handler, should be registered early
   // .use(authMiddleware) // Middleware หลักสำหรับตรวจสอบ user (จะสร้างในขั้นตอนถัดไป)
   .use(v1Routes);
 
