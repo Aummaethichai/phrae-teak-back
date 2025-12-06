@@ -11,6 +11,14 @@ datasource db {
   // url      = env("DATABASE_URL")
 }
 
+generator prismabox { 
+  provider = "prismabox"
+  typeboxImportDependencyName = "elysia"
+  typeboxImportVariableName = "t"
+  inputModel = true
+  output   = "../src/generated/prismabox"
+} 
+
 enum Role {
   USER
   ADMIN

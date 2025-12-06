@@ -3,7 +3,6 @@ import { cors } from "@elysiajs/cors";
 import { config } from "dotenv";
 import { logger } from "./utils/logger";
 import v1Routes from "./modules/v1/v1_index";
-
 // Core Middlewares & Plugins
 // import { authMiddleware } from './core/middlewares/auth';
 
@@ -15,7 +14,6 @@ import v1Routes from "./modules/v1/v1_index";
 // import './config/redis' // คุณสามารถเปิดใช้งานส่วนนี้เมื่อพร้อม
 
 config();
-
 const port = process.env.APP_ENV === "production" ? (process.env.PORT ?? "8080") : "8080";
 
 const app = new Elysia()
