@@ -30,7 +30,7 @@ export const sessionPlugin = new Elysia({
             `session:${newSessionId}`,
             id.toString(),
             "EX",
-            60 * 60 * 24 * 7
+            60 * 60 * 24 * 1
           );
 
           // ตรวจสอบว่า session cookie object มีอยู่จริงไหม ถ้าไม่มีให้สร้างใหม่ (Elysia จัดการให้ แต่กันเหนียว)

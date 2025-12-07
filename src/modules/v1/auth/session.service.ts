@@ -33,7 +33,6 @@ export async function createSession(payload: SessionPayload, cookie: ElysiaCooki
       "Redis connection is not open. Session cannot be created."
     );
   }
-
   // 1. สร้าง Session ID ที่ปลอดภัยและไม่ซ้ำกัน
   const sessionId = uuidv4();
 

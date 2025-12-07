@@ -58,7 +58,7 @@ export class ProductController {
 
   // POST /api/v1/products
   createProduct = async ({
-    body,
+    body
   }: {
     body: typeof ProductPlainInputCreate.static;
   }) => {

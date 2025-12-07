@@ -74,15 +74,7 @@ export const googleAuth = new Elysia({ prefix: "/google" })
     });
 
     if (!user) {
-      user = await prisma.user.create({
-        data: {
-          email: googleUser.email,
-          name: googleUser.name,
-          profile_image: googleUser.picture,
-          // คุณอาจต้องการกำหนด role เริ่มต้นให้ user ใหม่ที่นี่
-          role: "USER",
-        },
-      });
+       return redirect(`${process.env.FRONTEND_URL}/regitster?email=${googleUser.email}&name=${googleUser.name}&googleId=${googleUser.id}&role=USER&profile_image=${googleUser.picture}`);
     }
     // 5) สร้าง session, เก็บใน Redis, และตั้งค่า cookie
     if (!user) {
@@ -93,10 +85,10 @@ export const googleAuth = new Elysia({ prefix: "/google" })
         id: user.id,
         email: user.email,
         name: user.name,
-        password: user.password || "", // Assuming password might be null for Google users
-        googleId: user.googleId || "", // Assuming googleId might be null
+        password: user.password || "",
+        googleId: user.googleId || "",
         role: user.role,
-        profile_image: user.profile_image || "", // Assuming profile_image might be null
+        profile_image: user.profile_image || "",
     }, cookie as unknown as ElysiaCookie);
 
     return redirect(`${process.env.FRONTEND_URL}`);

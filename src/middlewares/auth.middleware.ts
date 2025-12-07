@@ -1,20 +1,27 @@
 import { Elysia } from "elysia";
-// ตรวจสอบ path import ให้ถูกต้อง
 import { sessionPlugin } from "../modules/v1/auth/session";
 import { logger } from "../utils/logger";
-import { fail } from "../utils/response";
+import { client } from "../config/redis";
 
 export const isAuthenticated = new Elysia({ name: "middleware.isAuthenticated" })
   .use(sessionPlugin)
-  // ย้าย Logic การเช็คมาไว้ใน derive เลย จะได้ทั้ง User และ Guard ในตัวเดียว
-  .derive({ as: "scoped" }, ({ session, error }) => {
+  .derive({ as: "scoped" }, async ({ cookie: { session }, set }) => {
     if (!session) {
-       logger.error("Session missing");
-       throw { message: "Session Unavailable" }; // error(500, fail("Internal Server Error", "Session Unavailable"));
+       logger.error("Session missing or invalid");
+       set.status = 401;
+       throw {
+          status: 401,
+          message: "Unauthorized: Not Found Session"
+       }
     }
 
-    if (!session.userId) {
-       throw { code: "UNAUTHORIZED", message: "Unauthorized" };
+    const cachedSession = await client.get(`session:${session}`);
+   if (!cachedSession) {
+       set.status = 401;
+       throw {
+          status: 401,
+          message: "Unauthorized: Session Expired or Not Exist in Redis"
+       }
     }
 
     return {
@@ -23,4 +30,3 @@ export const isAuthenticated = new Elysia({ name: "middleware.isAuthenticated" }
       }
     };
   });
-

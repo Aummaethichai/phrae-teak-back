@@ -8,21 +8,21 @@ import {
 const productController = new ProductController();
 
 export const productRoutes = new Elysia({ prefix: "/products" })
-  // Public Routes (ใครก็ดูได้)
+  // no middleware
   .get("/", productController.getProducts)
   .get("/:id", productController.getProductById, {
-    // params: t.Object({ id: t.Numeric() }),
+    params: t.Object({ id: t.String() }),
   })
 
   // Protected Routes (ต้อง Login ก่อน)
   .use(isAuthenticated)
   .post("/", productController.createProduct, {
-    body: ProductPlainInputCreate, // Validate Body ด้วย Schema จาก Prismabox
+    body: ProductPlainInputCreate,
   })
   .patch("/:id", productController.updateProduct, {
-    // params: t.Object({ id: t.Numeric() }),
+    params: t.Object({ id: t.String() }),
     body: ProductPlainInputUpdate,
   })
   .delete("/:id", productController.deleteProduct, {
-    // params: t.Object({ id: t.Numeric() }),
+    params: t.Object({ id: t.String() }),
   });
