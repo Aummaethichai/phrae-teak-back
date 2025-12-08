@@ -1,7 +1,7 @@
 import { client } from "../../../config/redis";
-import { InternalServerError } from "../../../utils/errors";
-import cookie from "@elysiajs/cookie";
 import { v4 as uuidv4 } from "uuid";
+import { apiResponse } from "../../../utils/response";
+import { Context } from "elysia";
 
 
 // กำหนดโครงสร้างข้อมูลที่จะเก็บใน session
@@ -27,11 +27,9 @@ const SESSION_DURATION_SECONDS = 60 * 60 * 24; // 24 ชั่วโมง
  * @param payload ข้อมูล user ที่จะเก็บใน session
  * @param cookie context.cookie จาก Elysia
  */
-export async function createSession(payload: SessionPayload, cookie: ElysiaCookie) {
+export async function createSession(payload: SessionPayload, cookie: ElysiaCookie, set: Context['set']) {
   if (client.status !== "ready") {
-    throw new InternalServerError(
-      "Redis connection is not open. Session cannot be created."
-    );
+    return apiResponse.internalServerError(set, "Redis connection is not open. Session cannot be created.");
   }
   // 1. สร้าง Session ID ที่ปลอดภัยและไม่ซ้ำกัน
   const sessionId = uuidv4();

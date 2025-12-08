@@ -13,6 +13,7 @@ import {
   deleteSession,
   ElysiaCookie,
 } from "./session.service";
+import { apiResponse } from "../../../utils/response";
 
 interface userGoogle {
   id: number;
@@ -38,11 +39,11 @@ export const googleAuth = new Elysia({ prefix: "/google" })
   })
 
   // Step 2: รับ callback + ดึง token
-  .get("/callback", async ({ query, cookie }) => {
+  .get("/callback", async ({ query, cookie, set }) => {
     const { code } = query;
 
     if (!code) {
-      throw new BadRequestError("Authorization code is missing from callback.");
+      throw apiResponse.badRequest(set, "Missing code.");
     }
 
     const tokenJson = await fetch("https://oauth2.googleapis.com/token", {
@@ -58,7 +59,7 @@ export const googleAuth = new Elysia({ prefix: "/google" })
     }).then((r) => r.json());
 
     if (!tokenJson.access_token) {
-      throw new BadRequestError("Failed to retrieve access token from Google.");
+      throw apiResponse.badRequest(set, "Failed to retrieve access token from Google.");
     }
 
     // 2) ดึงข้อมูล user จาก Google
@@ -75,10 +76,6 @@ export const googleAuth = new Elysia({ prefix: "/google" })
 
     if (!user) {
        return redirect(`${process.env.FRONTEND_URL}/register?email=${googleUser.email}&name=${googleUser.name}&googleId=${googleUser.id}&role=USER&profile_image=${googleUser.picture}`);
-    }
-    // 5) สร้าง session, เก็บใน Redis, และตั้งค่า cookie
-    if (!user) {
-      throw new InternalServerError("User not found after creation or lookup.");
     }
 
     await createSession({

@@ -3,7 +3,6 @@ import { Elysia } from "elysia";
 import { config } from "dotenv";
 import { logger } from "./utils/logger";
 import v1Routes from "./modules/v1/v1_index";
-import { errorHandler } from "./utils/errorHandler";
 import cookie from "@elysiajs/cookie";
 import { corePlugin } from "./plugins/cors.plugin";
 
@@ -21,7 +20,6 @@ const app = new Elysia()
   // })
   .use(corePlugin)
   .use(cookie())
-  .use(errorHandler)
   .use(v1Routes);
 
 app.listen(port);

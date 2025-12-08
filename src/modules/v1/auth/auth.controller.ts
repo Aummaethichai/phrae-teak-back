@@ -1,10 +1,11 @@
-import { Elysia, t } from "elysia";
+import { Context, Elysia, t } from "elysia";
 import { AuthService } from "./auth.service";
 import {
   UserPlainInputCreate,
 } from "../../../generated/prismabox/User";
 import { logger } from "../../../utils/logger";
-import { createSession } from "./session.service";
+import { createSession, ElysiaCookie } from "./session.service";
+import { apiResponse } from "../../../utils/response";
 
 export class AuthController {
   private authService = AuthService;
@@ -12,18 +13,17 @@ export class AuthController {
   createUser = async ({
     body,
     cookie,
+    set,
   }: {
     body: typeof UserPlainInputCreate.static;
     cookie: any;
+    set: Context['set']
   }) => {
     try {
       const check_user = await this.authService.CheckUser(body.email);
 
       if (check_user) {
-        return {
-          status: "error",
-          message: "มีผู้ใช้นี้ในระบบแล้ว กรุณาใช้อีเมลอื่น",
-        };
+        return apiResponse.badRequest(set, "มีผู้ใช้นี้ในระบบแล้ว กรุณาใช้อีเมลอื่น");
       }
       const newUser = await this.authService.createUser(body);
 
@@ -38,11 +38,14 @@ export class AuthController {
         },
         cookie
       );
+
+      return apiResponse.created(set, {
+        id: newUser.id,
+        email: newUser.email,
+        name: newUser.name,
+        role: newUser.role,
+      });
       
-      return {
-        status: "success",
-        data: newUser,
-      };
     } catch (error: any) {
       logger.error(error);
       return {
@@ -52,19 +55,13 @@ export class AuthController {
     }
   };
 
-  loginLocal = async({
-    email,
-    password,
-    cookie,
-  }:{
-    email: string;
-    password: string;
-    cookie: any;
-  }) => {
+  loginLocal = async ({ body, set, cookie }: Context) => {
     try {
+      const { email, password } = body as any;
       const user = await this.authService.verifyUser(email, password);
 
       if (!user) {
+        set.status = 401;
         return {
           status: "error",
           message: "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
@@ -79,9 +76,10 @@ export class AuthController {
           role: user.role,
           profile_image: user.profile_image || "",
         },
-        cookie
+        cookie as unknown as ElysiaCookie
       );
 
+      set.status = 200;
       return {
         status: "success",
         data: {
@@ -93,8 +91,7 @@ export class AuthController {
       };
     } catch (error: any) {
       logger.error(error);
-      // Return a generic error message to the user for security
       return { status: "error", message: "เกิดข้อผิดพลาดบางอย่าง" };
     }
-  }
+  };
 }

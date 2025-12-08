@@ -12,7 +12,7 @@ export const authLocalRoutes = new Elysia()
     body: UserPlainInputCreate,
   })
 
-  .post("/login", ({ body, cookie }) => authController.loginLocal({ ...body, cookie }), {
+  .post("/login", authController.loginLocal, {
     body: t.Object({
       email: t.String(),
       password: t.String(),
