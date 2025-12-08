@@ -27,9 +27,9 @@ const SESSION_DURATION_SECONDS = 60 * 60 * 24; // 24 ชั่วโมง
  * @param payload ข้อมูล user ที่จะเก็บใน session
  * @param cookie context.cookie จาก Elysia
  */
-export async function createSession(payload: SessionPayload, cookie: ElysiaCookie, set: Context['set']) {
+export async function createSession(payload: SessionPayload, cookie: ElysiaCookie) {
   if (client.status !== "ready") {
-    return apiResponse.internalServerError(set, "Redis connection is not open. Session cannot be created.");
+    return apiResponse.internalServerError("Redis connection is not open. Session cannot be created.");
   }
   // 1. สร้าง Session ID ที่ปลอดภัยและไม่ซ้ำกัน
   const sessionId = uuidv4();

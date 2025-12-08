@@ -60,8 +60,7 @@ export const apiResponse = {
     return { status_code: 422, status: "error", message, errors };
   },
 
-  internalServerError: (set: Context["set"], error: any) => {
-    set.status = 500;
+  internalServerError: ( error: any) => {
     // แนะนำ: อย่าส่ง error.message ดิบๆ ไปหา User ถ้าเป็น Production (มันไม่ปลอดภัย)
     // แต่ระหว่าง Dev ส่งไปได้เพื่อให้รู้ว่าพังตรงไหน
     const response = {
