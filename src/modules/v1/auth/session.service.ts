@@ -9,7 +9,7 @@ export interface SessionPayload {
     id: number;
     email: string;
     name: string;
-    password: string;
+    // password: string;
     googleId: string;
     role: string;
     profile_image: string;

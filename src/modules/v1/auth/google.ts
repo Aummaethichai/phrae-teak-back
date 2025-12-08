@@ -74,7 +74,7 @@ export const googleAuth = new Elysia({ prefix: "/google" })
     });
 
     if (!user) {
-       return redirect(`${process.env.FRONTEND_URL}/regitster?email=${googleUser.email}&name=${googleUser.name}&googleId=${googleUser.id}&role=USER&profile_image=${googleUser.picture}`);
+       return redirect(`${process.env.FRONTEND_URL}/register?email=${googleUser.email}&name=${googleUser.name}&googleId=${googleUser.id}&role=USER&profile_image=${googleUser.picture}`);
     }
     // 5) สร้าง session, เก็บใน Redis, และตั้งค่า cookie
     if (!user) {
@@ -85,7 +85,7 @@ export const googleAuth = new Elysia({ prefix: "/google" })
         id: user.id,
         email: user.email,
         name: user.name,
-        password: user.password || "",
+        // password: user.password || "",
         googleId: user.googleId || "",
         role: user.role,
         profile_image: user.profile_image || "",
@@ -93,9 +93,3 @@ export const googleAuth = new Elysia({ prefix: "/google" })
 
     return redirect(`${process.env.FRONTEND_URL}`);
   })
-
-  // ใช้สำหรับ logout
-  // .get("/logout", async ({ cookie }) => {
-  //   await deleteSession(cookie);
-  //   return { success: true, message: "Logged out successfully" };
-  // });

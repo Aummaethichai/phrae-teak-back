@@ -26,7 +26,10 @@ export const UserAddressRelations = t.Object(
         id: t.Integer(),
         email: t.String(),
         name: t.String(),
-        password: __nullable__(t.String()),
+        password: t.String(),
+        birth: __nullable__(t.Date()),
+        gender: __nullable__(t.String()),
+        phone: __nullable__(t.String()),
         googleId: __nullable__(t.String()),
         role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
           additionalProperties: false,

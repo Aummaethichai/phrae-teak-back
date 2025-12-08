@@ -9,7 +9,10 @@ export const UserPlain = t.Object(
     id: t.Integer(),
     email: t.String(),
     name: t.String(),
-    password: __nullable__(t.String()),
+    password: t.String(),
+    birth: __nullable__(t.Date()),
+    gender: __nullable__(t.String()),
+    phone: __nullable__(t.String()),
     googleId: __nullable__(t.String()),
     role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
       additionalProperties: false,
@@ -84,7 +87,10 @@ export const UserPlainInputCreate = t.Object(
   {
     email: t.String(),
     name: t.String(),
-    password: t.Optional(__nullable__(t.String())),
+    password: t.String(),
+    birth: t.Optional(__nullable__(t.Date())),
+    gender: t.Optional(__nullable__(t.String())),
+    phone: t.Optional(__nullable__(t.String())),
     role: t.Optional(
       t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
         additionalProperties: false,
@@ -99,7 +105,10 @@ export const UserPlainInputUpdate = t.Object(
   {
     email: t.Optional(t.String()),
     name: t.Optional(t.String()),
-    password: t.Optional(__nullable__(t.String())),
+    password: t.Optional(t.String()),
+    birth: t.Optional(__nullable__(t.Date())),
+    gender: t.Optional(__nullable__(t.String())),
+    phone: t.Optional(__nullable__(t.String())),
     role: t.Optional(
       t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
         additionalProperties: false,
@@ -259,6 +268,9 @@ export const UserWhere = t.Partial(
           email: t.String(),
           name: t.String(),
           password: t.String(),
+          birth: t.Date(),
+          gender: t.String(),
+          phone: t.String(),
           googleId: t.String(),
           role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
             additionalProperties: false,
@@ -313,6 +325,9 @@ export const UserWhereUnique = t.Recursive(
               email: t.String(),
               name: t.String(),
               password: t.String(),
+              birth: t.Date(),
+              gender: t.String(),
+              phone: t.String(),
               googleId: t.String(),
               role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
                 additionalProperties: false,
@@ -337,6 +352,9 @@ export const UserSelect = t.Partial(
       email: t.Boolean(),
       name: t.Boolean(),
       password: t.Boolean(),
+      birth: t.Boolean(),
+      gender: t.Boolean(),
+      phone: t.Boolean(),
       googleId: t.Boolean(),
       role: t.Boolean(),
       profile_image: t.Boolean(),
@@ -377,6 +395,15 @@ export const UserOrderBy = t.Partial(
         additionalProperties: false,
       }),
       password: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      birth: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      gender: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      phone: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
       googleId: t.Union([t.Literal("asc"), t.Literal("desc")], {

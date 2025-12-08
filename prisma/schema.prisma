@@ -37,7 +37,10 @@ model User {
   id         Int         @id @default(autoincrement())
   email      String      @unique
   name       String
-  password   String? // Optional for Google Auth users
+  password   String
+  birth      DateTime?   @map("birth_date")
+  gender     String?
+  phone      String?
   googleId   String?     @unique @map("google_id")
   role       Role        @default(USER)
   profile_image String?     @map("profile_image")

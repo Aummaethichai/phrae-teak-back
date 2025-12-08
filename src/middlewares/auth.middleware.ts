@@ -26,7 +26,8 @@ export const isAuthenticated = new Elysia({ name: "middleware.isAuthenticated" }
 
     return {
       user: {
-        id: session.userId
+        id: session,
+        ...JSON.parse(cachedSession),
       }
     };
   });
