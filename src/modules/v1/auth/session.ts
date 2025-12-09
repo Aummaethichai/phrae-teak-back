@@ -38,7 +38,7 @@ export const sessionPlugin = new Elysia({
             session.set({
               value: newSessionId,
               httpOnly: true,
-              secure: process.env.NODE_ENV === "production",
+              secure: process.env.APP_ENV === "production",
               sameSite: "lax",
               path: "/",
               maxAge: 60 * 60 * 24 * 1,

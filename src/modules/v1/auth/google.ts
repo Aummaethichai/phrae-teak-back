@@ -7,7 +7,6 @@ import {
   UserPlainInputCreate,
 } from "../../../generated/prismabox/User";
 import { prisma } from "../../../config/prisma";
-import { BadRequestError, InternalServerError } from "../../../utils/errors";
 import {
   createSession,
   deleteSession,

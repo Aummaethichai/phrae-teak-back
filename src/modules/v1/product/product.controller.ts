@@ -1,28 +1,23 @@
-import { Elysia, t } from "elysia";
+import { Context, Elysia, t } from "elysia";
 import { ProductService } from "./product.service";
 import {
   ProductPlainInputCreate,
   ProductPlainInputUpdate,
 } from "../../../generated/prismabox/Product";
 import { logger } from "../../../utils/logger";
+import { apiResponse } from "../../../utils/response";
 
 export class ProductController {
   private productService = new ProductService();
 
   // GET /api/v1/products
-  getProducts = async () => {
+  getProducts = async ({ set }: Context) => {
     try {
       const products = await this.productService.getAll();
-      return {
-        status: "success",
-        data: products,
-      };
+      return apiResponse.success(set, products)
     } catch (error: any) {
-      logger.error(error);
-      return {
-        status: "error",
-        message: `${error.message}`,
-      };
+      logger.error(error.message);
+      return apiResponse.internalServerError(set, error.message);
     }
   };
 
@@ -32,48 +27,37 @@ export class ProductController {
     set,
   }: {
     params: { id: string };
-    set: any;
+    set: Context['set'];
   }) => {
     try {
       const id = Number(params.id);
       const product = await this.productService.getById(id);
 
       if (!product) {
-        set.status = 404;
-        return { status: "error", message: "Product not found" };
+        return apiResponse.badRequest(set, "Product not found");
       }
 
-      return {
-        status: "success",
-        data: product,
-      };
+      return apiResponse.success(set, product);
     } catch (error: any) {
-      logger.error(error);
-      return {
-        status: "error",
-        message: `${error.message}`,
-      };
+      logger.error(error.message);
+      return apiResponse.internalServerError(set, error.message);
     }
   };
 
   // POST /api/v1/products
   createProduct = async ({
-    body
+    body,
+    set
   }: {
     body: typeof ProductPlainInputCreate.static;
+    set: Context['set'];
   }) => {
     try {
       const newProduct = await this.productService.create(body);
-      return {
-        status: "success",
-        data: newProduct,
-      };
+      return apiResponse.created(set, newProduct);
     } catch (error: any) {
       logger.error(error);
-      return {
-        status: "error",
-        message: `${error.message}`,
-      };
+      return apiResponse.internalServerError(set, error.message); 
     }
   };
 
@@ -81,28 +65,24 @@ export class ProductController {
   updateProduct = async ({
     params,
     body,
+    set
   }: {
     params: { id: string };
     body: typeof ProductPlainInputUpdate.static;
+    set: Context['set'];
   }) => {
     try {
       const id = Number(params.id);
       const updatedProduct = await this.productService.update(id, body);
-      return {
-        status: "success",
-        data: updatedProduct,
-      };
+      return apiResponse.success(set, updatedProduct);
     } catch (error: any) {
       logger.error(error);
-      return {
-        status: "error",
-        message: `${error.message}`,
-      };
+      return apiResponse.internalServerError(set, error.message); 
     }
   };
 
   // DELETE /api/v1/products/:id
-  deleteProduct = async ({ params }: { params: { id: string } }) => {
+  deleteProduct = async ({ params, set }: { params: { id: string }; set: Context['set'] }) => {
     try {
       const id = Number(params.id);
       await this.productService.delete(id);
@@ -112,10 +92,7 @@ export class ProductController {
       };
     } catch (error: any) {
       logger.error(error);
-      return {
-        status: "error",
-        message: `${error.message}`,
-      };
+      return apiResponse.internalServerError(set, error.message); 
     }
   };
 }

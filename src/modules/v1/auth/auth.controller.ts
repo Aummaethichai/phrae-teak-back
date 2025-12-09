@@ -45,7 +45,6 @@ export class AuthController {
         name: newUser.name,
         role: newUser.role,
       });
-      
     } catch (error: any) {
       logger.error(error);
       return {

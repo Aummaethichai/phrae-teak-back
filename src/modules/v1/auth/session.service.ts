@@ -1,7 +1,5 @@
 import { client } from "../../../config/redis";
 import { v4 as uuidv4 } from "uuid";
-import { apiResponse } from "../../../utils/response";
-import { Context } from "elysia";
 
 
 // กำหนดโครงสร้างข้อมูลที่จะเก็บใน session
@@ -28,13 +26,8 @@ const SESSION_DURATION_SECONDS = 60 * 60 * 24; // 24 ชั่วโมง
  * @param cookie context.cookie จาก Elysia
  */
 export async function createSession(payload: SessionPayload, cookie: ElysiaCookie) {
-  if (client.status !== "ready") {
-    return apiResponse.internalServerError("Redis connection is not open. Session cannot be created.");
-  }
-  // 1. สร้าง Session ID ที่ปลอดภัยและไม่ซ้ำกัน
   const sessionId = uuidv4();
 
-  // 2. แปลงข้อมูลเป็น string เพื่อเก็บใน Redis
   const sessionData = JSON.stringify(payload);
 
   // 3. เก็บ Session ใน Redis พร้อมตั้งเวลาหมดอายุ
@@ -51,7 +44,7 @@ export async function createSession(payload: SessionPayload, cookie: ElysiaCooki
     httpOnly: true,
     path: "/",
     maxAge: SESSION_DURATION_SECONDS,
-    secure: process.env.NODE_ENV === "production", // ส่งผ่าน HTTPS เท่านั้นใน production
+    secure: process.env.APP_ENV === "production",
     sameSite: "lax",
   });
 }

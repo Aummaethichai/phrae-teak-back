@@ -1,5 +1,7 @@
 import Redis from 'ioredis'
 import { logger } from "../utils/logger";
+import { apiResponse } from '../utils/response';
+import { Context } from 'elysia';
 
 export const client = new Redis({
   host: process.env.REDIS_HOST || '127.0.0.1',
@@ -18,7 +20,7 @@ client.on('ready', () => {
 
 client.on('error', (error) => {
   logger.error({ err: error.message }, '❌ Redis error')
-  process.exit(1)
+  // process.exit(1)
 })
 
 client.on('close', () => {

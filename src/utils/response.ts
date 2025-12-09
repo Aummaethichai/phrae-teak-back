@@ -1,4 +1,5 @@
 import { Context } from "elysia";
+import { logger } from "./logger";
 
 interface ApiResponse<T = any> {
   status: "success" | "error";
@@ -8,7 +9,7 @@ interface ApiResponse<T = any> {
 }
 
 export const apiResponse = {
-  ok: <T>(set: Context["set"], data: T, message: string = "Success") => {
+  success: <T>(set: Context["set"], data: T, message: string = "Success") => {
     set.status = 200;
     return { status_code: 200, status: "success", message, data };
   },
@@ -19,6 +20,7 @@ export const apiResponse = {
     message: string = "Created successfully"
   ) => {
     set.status = 201;
+    logger.info(message);
     return { status_code: 201, status: "success", message, data };
   },
 
@@ -28,25 +30,30 @@ export const apiResponse = {
     errors?: any
   ) => {
     set.status = 400;
+    logger.warn(message);
     return { status_code: 400, status: "error", message, errors };
   },
 
   unauthorized: (set: Context["set"], message: string = "Unauthorized") => {
     set.status = 401;
+    logger.warn(message);
     return { status_code: 401, status: "error", message };
   },
 
   forbidden: (set: Context["set"], message: string = "Forbidden access") => {
     set.status = 403;
+    logger.warn(message);
     return { status_code: 403, status: "error", message };
   },
 
   notFound: (set: Context["set"], message: string = "Resource not found") => {
+    logger.warn(message);
     set.status = 404;
     return { status_code: 404, status: "error", message };
   },
 
   conflict: (set: Context["set"], message: string = "Data conflict") => {
+    logger.warn(message);
     set.status = 409;
     return { status_code: 409, status: "error", message };
   },
@@ -57,12 +64,15 @@ export const apiResponse = {
     errors?: any
   ) => {
     set.status = 422;
+    logger.warn(message);
     return { status_code: 422, status: "error", message, errors };
   },
 
-  internalServerError: ( error: any) => {
+  internalServerError: (set: Context["set"], message: any) => {
     // แนะนำ: อย่าส่ง error.message ดิบๆ ไปหา User ถ้าเป็น Production (มันไม่ปลอดภัย)
     // แต่ระหว่าง Dev ส่งไปได้เพื่อให้รู้ว่าพังตรงไหน
+    logger.error(message);
+    set.status = 500;
     const response = {
       status_code: 500,
       status: "error",
@@ -70,8 +80,8 @@ export const apiResponse = {
       //   debug: error.message // เปิดใช้เฉพาะตอน Dev
     };
 
-    if (process.env.NODE_ENV !== "production") {
-      (response as any).debug = error.message;
+    if (process.env.APP_ENV !== "production") {
+      (response as any).debug = message;
     }
 
     return response;
