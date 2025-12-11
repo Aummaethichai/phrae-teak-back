@@ -6,6 +6,7 @@ import {
 import { logger } from "../../../utils/logger";
 import { createSession, ElysiaCookie } from "./session.service";
 import { apiResponse } from "../../../utils/response";
+import { client } from "../../../config/redis";
 
 export class AuthController {
   private authService = AuthService;
@@ -17,13 +18,16 @@ export class AuthController {
   }: {
     body: typeof UserPlainInputCreate.static;
     cookie: any;
-    set: Context['set']
+    set: Context["set"];
   }) => {
     try {
       const check_user = await this.authService.CheckUser(body.email);
 
       if (check_user) {
-        return apiResponse.badRequest(set, "มีผู้ใช้นี้ในระบบแล้ว กรุณาใช้อีเมลอื่น");
+        return apiResponse.badRequest(
+          set,
+          "มีผู้ใช้นี้ในระบบแล้ว กรุณาใช้อีเมลอื่น"
+        );
       }
       const newUser = await this.authService.createUser(body);
 
@@ -71,7 +75,7 @@ export class AuthController {
           id: user.id,
           email: user.email,
           name: user.name,
-          googleId: user.googleId || "",
+          // googleId: user.googleId || "",
           role: user.role,
           profile_image: user.profile_image || "",
         },
@@ -92,5 +96,19 @@ export class AuthController {
       logger.error(error);
       return { status: "error", message: "เกิดข้อผิดพลาดบางอย่าง" };
     }
+  };
+
+  logout = async ({ set, cookie: { session } }: Context) => {
+    const cachedSession = await client.get(`session:${session}`);
+    if (cachedSession) {
+      await client.del(`session:${session}`);
+    }
+    session?.remove();
+    set.status = 200;
+    return {
+      status: "success",
+      message: "ออกจากระบบสําเร็จ",
+      data: cachedSession ? JSON.parse(cachedSession) : null,
+    };
   };
 }

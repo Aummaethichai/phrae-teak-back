@@ -1,19 +1,13 @@
 import { Elysia } from 'elysia';
 import testModule from './test';
 import authModule from './auth';
-import productModule from './product';
+import {productRoutes} from './product/product.route';
+import { userRoutes } from "./user/user.route";
 
 const v1Routes = new Elysia({ prefix: '/api/v1' })
-  // .onBeforeHandle(async ({ cookie: { session } }) => {
-  //   if(!session){
-  //     throw {
-  //       status: 401,
-  //       message: "Unauthorized: Not Found Session222"
-  //     }
-  //   }
-  // })
   .use(testModule)
   .use(authModule)
-  .use(productModule);
+  .use(productRoutes)
+  .use(userRoutes)
 
 export default v1Routes;

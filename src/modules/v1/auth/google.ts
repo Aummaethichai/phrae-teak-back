@@ -18,8 +18,8 @@ interface userGoogle {
   id: number;
   email: string;
   name: string;
-  password: string;
-  googleId: string;
+  // password: string;
+  // googleId: string;
   role: string;
   profile_image: string;
 }
@@ -77,15 +77,18 @@ export const googleAuth = new Elysia({ prefix: "/google" })
        return redirect(`${process.env.FRONTEND_URL}/register?email=${googleUser.email}&name=${googleUser.name}&googleId=${googleUser.id}&role=USER&profile_image=${googleUser.picture}`);
     }
 
-    await createSession({
+    await createSession(
+      {
         id: user.id,
         email: user.email,
         name: user.name,
         // password: user.password || "",
-        googleId: user.googleId || "",
+        // googleId: user.googleId || "",
         role: user.role,
         profile_image: user.profile_image || "",
-    }, cookie as unknown as ElysiaCookie);
+      },
+      cookie as unknown as ElysiaCookie
+    );
 
     return redirect(`${process.env.FRONTEND_URL}`);
   })

@@ -14,10 +14,10 @@ export const isAuthenticated = new Elysia({ name: "middleware.isAuthenticated" }
           message: "Unauthorized: Not Found Session"
        }
     }
-
     const cachedSession = await client.get(`session:${session}`);
    if (!cachedSession) {
        set.status = 401;
+       session.remove();
        throw {
           status: 401,
           message: "Unauthorized: Session Expired or Not Exist in Redis"

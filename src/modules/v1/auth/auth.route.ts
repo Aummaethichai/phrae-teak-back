@@ -2,7 +2,7 @@ import { Elysia, t } from "elysia";
 import { AuthController } from "./auth.controller";
 import { isAuthenticated } from "../../../middlewares/auth.middleware";
 import { UserPlainInputCreate } from "../../../generated/prismabox/User";
-import cookie from "@elysiajs/cookie";
+// import cookie from "@elysiajs/cookie";
 const authController = new AuthController();
 
 export const authLocalRoutes = new Elysia()
@@ -19,6 +19,5 @@ export const authLocalRoutes = new Elysia()
     }),
   })
 
-  .post("/logout", ({ cookie }) => {
-    cookie.session?.remove();
-  });
+  .use(isAuthenticated)
+  .post("/logout", authController.logout)

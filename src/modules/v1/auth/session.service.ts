@@ -8,7 +8,7 @@ export interface SessionPayload {
     email: string;
     name: string;
     // password: string;
-    googleId: string;
+    // googleId: string;
     role: string;
     profile_image: string;
 }
