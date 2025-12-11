@@ -36,7 +36,7 @@ export class AuthController {
           id: newUser.id,
           email: newUser.email,
           name: newUser.name,
-          googleId: newUser.googleId || "",
+          // googleId: newUser.googleId || "",
           role: newUser.role,
           profile_image: newUser.profile_image || "",
         },
