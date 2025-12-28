@@ -10,7 +10,7 @@ export const OrderItemPlain = t.Object(
     orderId: t.Integer(),
     productId: t.Integer(),
     quantity: t.Integer(),
-    price: t.Integer(),
+    price: t.Number(),
   },
   { additionalProperties: false },
 );
@@ -21,17 +21,21 @@ export const OrderItemRelations = t.Object(
       {
         id: t.Integer(),
         userId: t.Integer(),
-        totalPrice: t.Integer(),
         status: t.Union(
           [
-            t.Literal("PENDING"),
-            t.Literal("PAID"),
-            t.Literal("SHIPPED"),
-            t.Literal("DELIVERED"),
+            t.Literal("PENDING_PAYMENT"),
+            t.Literal("PENDING_DEPOSIT"),
+            t.Literal("IN_PRODUCTION"),
+            t.Literal("READY_TO_SHIP"),
+            t.Literal("COMPLETED"),
             t.Literal("CANCELLED"),
           ],
           { additionalProperties: false },
         ),
+        totalPrice: t.Number(),
+        depositAmount: __nullable__(t.Number()),
+        isDepositPaid: t.Boolean(),
+        shippingAddress: t.String(),
         createdAt: t.Date(),
         updatedAt: t.Date(),
       },
@@ -42,9 +46,11 @@ export const OrderItemRelations = t.Object(
         id: t.Integer(),
         name: t.String(),
         description: __nullable__(t.String()),
-        price: t.Integer(),
-        imageUrl: __nullable__(t.String()),
+        price: t.Number(),
         stock: t.Integer(),
+        isPreorder: t.Boolean(),
+        leadTime: __nullable__(t.Integer()),
+        categoryId: t.Integer(),
         createdAt: t.Date(),
         updatedAt: t.Date(),
       },
@@ -55,12 +61,12 @@ export const OrderItemRelations = t.Object(
 );
 
 export const OrderItemPlainInputCreate = t.Object(
-  { quantity: t.Integer(), price: t.Integer() },
+  { quantity: t.Integer(), price: t.Number() },
   { additionalProperties: false },
 );
 
 export const OrderItemPlainInputUpdate = t.Object(
-  { quantity: t.Optional(t.Integer()), price: t.Optional(t.Integer()) },
+  { quantity: t.Optional(t.Integer()), price: t.Optional(t.Number()) },
   { additionalProperties: false },
 );
 
@@ -134,7 +140,7 @@ export const OrderItemWhere = t.Partial(
           orderId: t.Integer(),
           productId: t.Integer(),
           quantity: t.Integer(),
-          price: t.Integer(),
+          price: t.Number(),
         },
         { additionalProperties: false },
       ),
@@ -174,7 +180,7 @@ export const OrderItemWhereUnique = t.Recursive(
               orderId: t.Integer(),
               productId: t.Integer(),
               quantity: t.Integer(),
-              price: t.Integer(),
+              price: t.Number(),
             },
             { additionalProperties: false },
           ),

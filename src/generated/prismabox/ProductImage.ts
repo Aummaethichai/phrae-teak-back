@@ -4,38 +4,20 @@ import { __transformDate__ } from "./__transformDate__";
 
 import { __nullable__ } from "./__nullable__";
 
-export const CartItemPlain = t.Object(
+export const ProductImagePlain = t.Object(
   {
     id: t.Integer(),
-    quantity: t.Integer(),
-    userId: t.Integer(),
     productId: t.Integer(),
+    url: t.String(),
+    sortOrder: t.Integer(),
+    isMain: t.Boolean(),
     createdAt: t.Date(),
   },
   { additionalProperties: false },
 );
 
-export const CartItemRelations = t.Object(
+export const ProductImageRelations = t.Object(
   {
-    user: t.Object(
-      {
-        id: t.Integer(),
-        email: t.String(),
-        name: __nullable__(t.String()),
-        password: t.String(),
-        birth: __nullable__(t.Date()),
-        gender: __nullable__(t.String()),
-        phone: __nullable__(t.String()),
-        googleId: __nullable__(t.String()),
-        role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
-          additionalProperties: false,
-        }),
-        profileImage: __nullable__(t.String()),
-        createdAt: t.Date(),
-        updatedAt: t.Date(),
-      },
-      { additionalProperties: false },
-    ),
     product: t.Object(
       {
         id: t.Integer(),
@@ -55,29 +37,26 @@ export const CartItemRelations = t.Object(
   { additionalProperties: false },
 );
 
-export const CartItemPlainInputCreate = t.Object(
-  { quantity: t.Optional(t.Integer()) },
-  { additionalProperties: false },
-);
-
-export const CartItemPlainInputUpdate = t.Object(
-  { quantity: t.Optional(t.Integer()) },
-  { additionalProperties: false },
-);
-
-export const CartItemRelationsInputCreate = t.Object(
+export const ProductImagePlainInputCreate = t.Object(
   {
-    user: t.Object(
-      {
-        connect: t.Object(
-          {
-            id: t.Integer({ additionalProperties: false }),
-          },
-          { additionalProperties: false },
-        ),
-      },
-      { additionalProperties: false },
-    ),
+    url: t.String(),
+    sortOrder: t.Optional(t.Integer()),
+    isMain: t.Optional(t.Boolean()),
+  },
+  { additionalProperties: false },
+);
+
+export const ProductImagePlainInputUpdate = t.Object(
+  {
+    url: t.Optional(t.String()),
+    sortOrder: t.Optional(t.Integer()),
+    isMain: t.Optional(t.Boolean()),
+  },
+  { additionalProperties: false },
+);
+
+export const ProductImageRelationsInputCreate = t.Object(
+  {
     product: t.Object(
       {
         connect: t.Object(
@@ -93,20 +72,9 @@ export const CartItemRelationsInputCreate = t.Object(
   { additionalProperties: false },
 );
 
-export const CartItemRelationsInputUpdate = t.Partial(
+export const ProductImageRelationsInputUpdate = t.Partial(
   t.Object(
     {
-      user: t.Object(
-        {
-          connect: t.Object(
-            {
-              id: t.Integer({ additionalProperties: false }),
-            },
-            { additionalProperties: false },
-          ),
-        },
-        { additionalProperties: false },
-      ),
       product: t.Object(
         {
           connect: t.Object(
@@ -123,7 +91,7 @@ export const CartItemRelationsInputUpdate = t.Partial(
   ),
 );
 
-export const CartItemWhere = t.Partial(
+export const ProductImageWhere = t.Partial(
   t.Recursive(
     (Self) =>
       t.Object(
@@ -132,46 +100,29 @@ export const CartItemWhere = t.Partial(
           NOT: t.Union([Self, t.Array(Self, { additionalProperties: false })]),
           OR: t.Array(Self, { additionalProperties: false }),
           id: t.Integer(),
-          quantity: t.Integer(),
-          userId: t.Integer(),
           productId: t.Integer(),
+          url: t.String(),
+          sortOrder: t.Integer(),
+          isMain: t.Boolean(),
           createdAt: t.Date(),
         },
         { additionalProperties: false },
       ),
-    { $id: "CartItem" },
+    { $id: "ProductImage" },
   ),
 );
 
-export const CartItemWhereUnique = t.Recursive(
+export const ProductImageWhereUnique = t.Recursive(
   (Self) =>
     t.Intersect(
       [
         t.Partial(
-          t.Object(
-            {
-              id: t.Integer(),
-              userId_productId: t.Object(
-                { userId: t.Integer(), productId: t.Integer() },
-                { additionalProperties: false },
-              ),
-            },
-            { additionalProperties: false },
-          ),
+          t.Object({ id: t.Integer() }, { additionalProperties: false }),
           { additionalProperties: false },
         ),
-        t.Union(
-          [
-            t.Object({ id: t.Integer() }),
-            t.Object({
-              userId_productId: t.Object(
-                { userId: t.Integer(), productId: t.Integer() },
-                { additionalProperties: false },
-              ),
-            }),
-          ],
-          { additionalProperties: false },
-        ),
+        t.Union([t.Object({ id: t.Integer() })], {
+          additionalProperties: false,
+        }),
         t.Partial(
           t.Object({
             AND: t.Union([
@@ -190,9 +141,10 @@ export const CartItemWhereUnique = t.Recursive(
           t.Object(
             {
               id: t.Integer(),
-              quantity: t.Integer(),
-              userId: t.Integer(),
               productId: t.Integer(),
+              url: t.String(),
+              sortOrder: t.Integer(),
+              isMain: t.Boolean(),
               createdAt: t.Date(),
             },
             { additionalProperties: false },
@@ -201,18 +153,18 @@ export const CartItemWhereUnique = t.Recursive(
       ],
       { additionalProperties: false },
     ),
-  { $id: "CartItem" },
+  { $id: "ProductImage" },
 );
 
-export const CartItemSelect = t.Partial(
+export const ProductImageSelect = t.Partial(
   t.Object(
     {
       id: t.Boolean(),
-      quantity: t.Boolean(),
-      userId: t.Boolean(),
-      user: t.Boolean(),
       productId: t.Boolean(),
       product: t.Boolean(),
+      url: t.Boolean(),
+      sortOrder: t.Boolean(),
+      isMain: t.Boolean(),
       createdAt: t.Boolean(),
       _count: t.Boolean(),
     },
@@ -220,26 +172,29 @@ export const CartItemSelect = t.Partial(
   ),
 );
 
-export const CartItemInclude = t.Partial(
+export const ProductImageInclude = t.Partial(
   t.Object(
-    { user: t.Boolean(), product: t.Boolean(), _count: t.Boolean() },
+    { product: t.Boolean(), _count: t.Boolean() },
     { additionalProperties: false },
   ),
 );
 
-export const CartItemOrderBy = t.Partial(
+export const ProductImageOrderBy = t.Partial(
   t.Object(
     {
       id: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
-      quantity: t.Union([t.Literal("asc"), t.Literal("desc")], {
-        additionalProperties: false,
-      }),
-      userId: t.Union([t.Literal("asc"), t.Literal("desc")], {
-        additionalProperties: false,
-      }),
       productId: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      url: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      sortOrder: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      isMain: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
       createdAt: t.Union([t.Literal("asc"), t.Literal("desc")], {
@@ -250,16 +205,17 @@ export const CartItemOrderBy = t.Partial(
   ),
 );
 
-export const CartItem = t.Composite([CartItemPlain, CartItemRelations], {
-  additionalProperties: false,
-});
-
-export const CartItemInputCreate = t.Composite(
-  [CartItemPlainInputCreate, CartItemRelationsInputCreate],
+export const ProductImage = t.Composite(
+  [ProductImagePlain, ProductImageRelations],
   { additionalProperties: false },
 );
 
-export const CartItemInputUpdate = t.Composite(
-  [CartItemPlainInputUpdate, CartItemRelationsInputUpdate],
+export const ProductImageInputCreate = t.Composite(
+  [ProductImagePlainInputCreate, ProductImageRelationsInputCreate],
+  { additionalProperties: false },
+);
+
+export const ProductImageInputUpdate = t.Composite(
+  [ProductImagePlainInputUpdate, ProductImageRelationsInputUpdate],
   { additionalProperties: false },
 );
