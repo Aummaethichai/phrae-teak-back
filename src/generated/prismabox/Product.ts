@@ -16,6 +16,7 @@ export const ProductPlain = t.Object(
     categoryId: t.Integer(),
     createdAt: t.Date(),
     updatedAt: t.Date(),
+    isActive: t.Boolean(),
   },
   { additionalProperties: false },
 );
@@ -84,6 +85,7 @@ export const ProductPlainInputCreate = t.Object(
     stock: t.Optional(t.Integer()),
     isPreorder: t.Optional(t.Boolean()),
     leadTime: t.Optional(__nullable__(t.Integer())),
+    isActive: t.Optional(t.Boolean()),
   },
   { additionalProperties: false },
 );
@@ -96,6 +98,7 @@ export const ProductPlainInputUpdate = t.Object(
     stock: t.Optional(t.Integer()),
     isPreorder: t.Optional(t.Boolean()),
     leadTime: t.Optional(__nullable__(t.Integer())),
+    isActive: t.Optional(t.Boolean()),
   },
   { additionalProperties: false },
 );
@@ -277,6 +280,7 @@ export const ProductWhere = t.Partial(
           categoryId: t.Integer(),
           createdAt: t.Date(),
           updatedAt: t.Date(),
+          isActive: t.Boolean(),
         },
         { additionalProperties: false },
       ),
@@ -322,6 +326,7 @@ export const ProductWhereUnique = t.Recursive(
               categoryId: t.Integer(),
               createdAt: t.Date(),
               updatedAt: t.Date(),
+              isActive: t.Boolean(),
             },
             { additionalProperties: false },
           ),
@@ -349,6 +354,7 @@ export const ProductSelect = t.Partial(
       orderItems: t.Boolean(),
       createdAt: t.Boolean(),
       updatedAt: t.Boolean(),
+      isActive: t.Boolean(),
       _count: t.Boolean(),
     },
     { additionalProperties: false },
@@ -399,6 +405,9 @@ export const ProductOrderBy = t.Partial(
         additionalProperties: false,
       }),
       updatedAt: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      isActive: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
     },

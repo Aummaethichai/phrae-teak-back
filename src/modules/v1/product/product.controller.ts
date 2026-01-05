@@ -7,6 +7,8 @@ import {
 import { logger } from "../../../utils/logger";
 import { apiResponse } from "../../../utils/response";
 
+import { CreateProductDTO } from "./product.schema";
+
 type AuthUser = { user: { id: string; role: 'ADMIN' | 'USER' } };
 
 type baseProductContext = {
@@ -14,7 +16,7 @@ type baseProductContext = {
   set: Context["set"];
 };
 type createProductContext = {
-  body: typeof ProductPlainInputCreate.static;
+  body: typeof CreateProductDTO.static;
   set: Context["set"];
 };
 
@@ -27,10 +29,25 @@ export class ProductController {
   private productService = new ProductService();
 
   // GET /api/v1/products
-  getProducts = async ({ set }: Context) => {
+  getProducts = async ({ set, headers }: Context) => {
     try {
       const products = await this.productService.getAll();
-      return apiResponse.success(set, products);
+      const protocol =
+        process.env.APP_ENV === 'development' ? 'http' : 'https';
+      const hostName = headers['host'];
+
+      const response = products.map(product => {
+        return {
+          ...product,
+          images: product.images.map(image => {
+            return {
+              ...image,
+              url: `${protocol}://${hostName}/api/v1/files/${image.id}`
+            }
+          })
+        }
+      })
+      return apiResponse.success(set, response);
     } catch (error: any) {
       logger.error(error.message);
       return apiResponse.internalServerError(set, error.message);
@@ -81,7 +98,7 @@ export class ProductController {
   deleteProduct = async ({ params, set, user }: baseProductContext & AuthUser) => {
     try {
       console.log(user);
-      
+
       const id = Number(params.id);
       const check_product = await this.productService.getById(id);
 
@@ -94,6 +111,32 @@ export class ProductController {
         status: "success",
         message: "Product deleted successfully",
       };
+    } catch (error: any) {
+      logger.error(error);
+      return apiResponse.internalServerError(set, error.message);
+    }
+  };
+
+  // POST /api/v1/products/admin
+  createProductAdmin = async ({ body, set }: { body: any; set: Context["set"] }) => {
+    try {
+      // Body is validated by Elysia schema in route
+      const { images, ...data } = body;
+
+      const product = await this.productService.createProductWithImages(
+        {
+          name: data.name,
+          description: data.description,
+          price: Number(data.price),
+          stock: Number(data.stock),
+          categoryId: Number(data.categoryId),
+          isPreorder: Boolean(data.isPreorder),
+          leadTime: data.leadTime ? Number(data.leadTime) : undefined,
+        },
+        images
+      );
+
+      return apiResponse.created(set, product);
     } catch (error: any) {
       logger.error(error);
       return apiResponse.internalServerError(set, error.message);

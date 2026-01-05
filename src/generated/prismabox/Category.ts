@@ -30,6 +30,7 @@ export const CategoryRelations = t.Object(
           categoryId: t.Integer(),
           createdAt: t.Date(),
           updatedAt: t.Date(),
+          isActive: t.Boolean(),
         },
         { additionalProperties: false },
       ),
