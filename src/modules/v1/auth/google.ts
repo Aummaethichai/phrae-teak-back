@@ -21,13 +21,13 @@ interface userGoogle {
   // password: string;
   // googleId: string;
   role: string;
-  profile_image: string;
+  profileImage : string;
 }
 export const googleAuth = new Elysia({ prefix: "/google" })
   .use(cookie())
   // Step 1: Redirect ไป Google
   .get("/login", ({ redirect }) => {
-    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    const url = new URL(`${process.env.auth_uri}`);
 
     url.searchParams.set("client_id", process.env.GOOGLE_CLIENT_ID!);
     url.searchParams.set("redirect_uri", process.env.GOOGLE_REDIRECT_URI!);
@@ -72,7 +72,7 @@ export const googleAuth = new Elysia({ prefix: "/google" })
     let user = await prisma.user.findUnique({
       where: { email: googleUser.email },
     });
-
+    
     if (!user) {
        return redirect(`${process.env.FRONTEND_URL}/register?email=${googleUser.email}&name=${googleUser.name}&googleId=${googleUser.id}&role=USER&profile_image=${googleUser.picture}`);
     }
@@ -81,11 +81,11 @@ export const googleAuth = new Elysia({ prefix: "/google" })
       {
         id: user.id,
         email: user.email,
-        name: user.name,
+        name: user.name || "",
         // password: user.password || "",
         // googleId: user.googleId || "",
         role: user.role,
-        profile_image: user.profile_image || "",
+        profile_image: user.profileImage  || "",
       },
       cookie as unknown as ElysiaCookie
     );

@@ -8,7 +8,7 @@ export const UserPlain = t.Object(
   {
     id: t.Integer(),
     email: t.String(),
-    name: t.String(),
+    name: __nullable__(t.String()),
     password: t.String(),
     birth: __nullable__(t.Date()),
     gender: __nullable__(t.String()),
@@ -17,7 +17,7 @@ export const UserPlain = t.Object(
     role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
       additionalProperties: false,
     }),
-    profile_image: __nullable__(t.String()),
+    profileImage: __nullable__(t.String()),
     createdAt: t.Date(),
     updatedAt: t.Date(),
   },
@@ -61,17 +61,21 @@ export const UserRelations = t.Object(
         {
           id: t.Integer(),
           userId: t.Integer(),
-          totalPrice: t.Integer(),
           status: t.Union(
             [
-              t.Literal("PENDING"),
-              t.Literal("PAID"),
-              t.Literal("SHIPPED"),
-              t.Literal("DELIVERED"),
+              t.Literal("PENDING_PAYMENT"),
+              t.Literal("PENDING_DEPOSIT"),
+              t.Literal("IN_PRODUCTION"),
+              t.Literal("READY_TO_SHIP"),
+              t.Literal("COMPLETED"),
               t.Literal("CANCELLED"),
             ],
             { additionalProperties: false },
           ),
+          totalPrice: t.Number(),
+          depositAmount: __nullable__(t.Number()),
+          isDepositPaid: t.Boolean(),
+          shippingAddress: t.String(),
           createdAt: t.Date(),
           updatedAt: t.Date(),
         },
@@ -86,7 +90,7 @@ export const UserRelations = t.Object(
 export const UserPlainInputCreate = t.Object(
   {
     email: t.String(),
-    name: t.String(),
+    name: t.Optional(__nullable__(t.String())),
     password: t.String(),
     birth: t.Optional(__nullable__(t.Date())),
     gender: t.Optional(__nullable__(t.String())),
@@ -96,7 +100,7 @@ export const UserPlainInputCreate = t.Object(
         additionalProperties: false,
       }),
     ),
-    profile_image: t.Optional(__nullable__(t.String())),
+    profileImage: t.Optional(__nullable__(t.String())),
   },
   { additionalProperties: false },
 );
@@ -104,7 +108,7 @@ export const UserPlainInputCreate = t.Object(
 export const UserPlainInputUpdate = t.Object(
   {
     email: t.Optional(t.String()),
-    name: t.Optional(t.String()),
+    name: t.Optional(__nullable__(t.String())),
     password: t.Optional(t.String()),
     birth: t.Optional(__nullable__(t.Date())),
     gender: t.Optional(__nullable__(t.String())),
@@ -114,7 +118,7 @@ export const UserPlainInputUpdate = t.Object(
         additionalProperties: false,
       }),
     ),
-    profile_image: t.Optional(__nullable__(t.String())),
+    profileImage: t.Optional(__nullable__(t.String())),
   },
   { additionalProperties: false },
 );
@@ -275,7 +279,7 @@ export const UserWhere = t.Partial(
           role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
             additionalProperties: false,
           }),
-          profile_image: t.String(),
+          profileImage: t.String(),
           createdAt: t.Date(),
           updatedAt: t.Date(),
         },
@@ -332,7 +336,7 @@ export const UserWhereUnique = t.Recursive(
               role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
                 additionalProperties: false,
               }),
-              profile_image: t.String(),
+              profileImage: t.String(),
               createdAt: t.Date(),
               updatedAt: t.Date(),
             },
@@ -357,7 +361,7 @@ export const UserSelect = t.Partial(
       phone: t.Boolean(),
       googleId: t.Boolean(),
       role: t.Boolean(),
-      profile_image: t.Boolean(),
+      profileImage: t.Boolean(),
       addresses: t.Boolean(),
       cartItems: t.Boolean(),
       orders: t.Boolean(),
@@ -409,7 +413,7 @@ export const UserOrderBy = t.Partial(
       googleId: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
-      profile_image: t.Union([t.Literal("asc"), t.Literal("desc")], {
+      profileImage: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
       createdAt: t.Union([t.Literal("asc"), t.Literal("desc")], {

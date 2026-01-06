@@ -38,7 +38,7 @@ export class AuthController {
           name: newUser.name,
           // googleId: newUser.googleId || "",
           role: newUser.role,
-          profile_image: newUser.profile_image || "",
+          profile_image: newUser.profileImage || "",
         },
         cookie
       );
@@ -77,7 +77,7 @@ export class AuthController {
           name: user.name,
           // googleId: user.googleId || "",
           role: user.role,
-          profile_image: user.profile_image || "",
+          profile_image: user.profileImage || "",
         },
         cookie as unknown as ElysiaCookie
       );

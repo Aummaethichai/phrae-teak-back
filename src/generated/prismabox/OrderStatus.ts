@@ -6,10 +6,11 @@ import { __nullable__ } from "./__nullable__";
 
 export const OrderStatus = t.Union(
   [
-    t.Literal("PENDING"),
-    t.Literal("PAID"),
-    t.Literal("SHIPPED"),
-    t.Literal("DELIVERED"),
+    t.Literal("PENDING_PAYMENT"),
+    t.Literal("PENDING_DEPOSIT"),
+    t.Literal("IN_PRODUCTION"),
+    t.Literal("READY_TO_SHIP"),
+    t.Literal("COMPLETED"),
     t.Literal("CANCELLED"),
   ],
   { additionalProperties: false },

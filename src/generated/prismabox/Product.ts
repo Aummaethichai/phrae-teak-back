@@ -9,17 +9,48 @@ export const ProductPlain = t.Object(
     id: t.Integer(),
     name: t.String(),
     description: __nullable__(t.String()),
-    price: t.Integer(),
-    imageUrl: __nullable__(t.String()),
+    price: t.Number(),
     stock: t.Integer(),
+    isPreorder: t.Boolean(),
+    leadTime: __nullable__(t.Integer()),
+    sortOrder: t.Integer(),
+    isFeatured: t.Boolean(),
     createdAt: t.Date(),
     updatedAt: t.Date(),
+    isActive: t.Boolean(),
   },
   { additionalProperties: false },
 );
 
 export const ProductRelations = t.Object(
   {
+    categories: t.Array(
+      t.Object(
+        {
+          id: t.Integer(),
+          productId: t.Integer(),
+          categoryId: t.Integer(),
+          sortOrder: t.Integer(),
+          assignedAt: t.Date(),
+        },
+        { additionalProperties: false },
+      ),
+      { additionalProperties: false },
+    ),
+    images: t.Array(
+      t.Object(
+        {
+          id: t.Integer(),
+          productId: t.Integer(),
+          url: t.String(),
+          sortOrder: t.Integer(),
+          isMain: t.Boolean(),
+          createdAt: t.Date(),
+        },
+        { additionalProperties: false },
+      ),
+      { additionalProperties: false },
+    ),
     cartItems: t.Array(
       t.Object(
         {
@@ -40,7 +71,7 @@ export const ProductRelations = t.Object(
           orderId: t.Integer(),
           productId: t.Integer(),
           quantity: t.Integer(),
-          price: t.Integer(),
+          price: t.Number(),
         },
         { additionalProperties: false },
       ),
@@ -54,9 +85,13 @@ export const ProductPlainInputCreate = t.Object(
   {
     name: t.String(),
     description: t.Optional(__nullable__(t.String())),
-    price: t.Integer(),
-    imageUrl: t.Optional(__nullable__(t.String())),
+    price: t.Number(),
     stock: t.Optional(t.Integer()),
+    isPreorder: t.Optional(t.Boolean()),
+    leadTime: t.Optional(__nullable__(t.Integer())),
+    sortOrder: t.Optional(t.Integer()),
+    isFeatured: t.Optional(t.Boolean()),
+    isActive: t.Optional(t.Boolean()),
   },
   { additionalProperties: false },
 );
@@ -65,15 +100,51 @@ export const ProductPlainInputUpdate = t.Object(
   {
     name: t.Optional(t.String()),
     description: t.Optional(__nullable__(t.String())),
-    price: t.Optional(t.Integer()),
-    imageUrl: t.Optional(__nullable__(t.String())),
+    price: t.Optional(t.Number()),
     stock: t.Optional(t.Integer()),
+    isPreorder: t.Optional(t.Boolean()),
+    leadTime: t.Optional(__nullable__(t.Integer())),
+    sortOrder: t.Optional(t.Integer()),
+    isFeatured: t.Optional(t.Boolean()),
+    isActive: t.Optional(t.Boolean()),
   },
   { additionalProperties: false },
 );
 
 export const ProductRelationsInputCreate = t.Object(
   {
+    categories: t.Optional(
+      t.Object(
+        {
+          connect: t.Array(
+            t.Object(
+              {
+                id: t.Integer({ additionalProperties: false }),
+              },
+              { additionalProperties: false },
+            ),
+            { additionalProperties: false },
+          ),
+        },
+        { additionalProperties: false },
+      ),
+    ),
+    images: t.Optional(
+      t.Object(
+        {
+          connect: t.Array(
+            t.Object(
+              {
+                id: t.Integer({ additionalProperties: false }),
+              },
+              { additionalProperties: false },
+            ),
+            { additionalProperties: false },
+          ),
+        },
+        { additionalProperties: false },
+      ),
+    ),
     cartItems: t.Optional(
       t.Object(
         {
@@ -113,6 +184,56 @@ export const ProductRelationsInputCreate = t.Object(
 export const ProductRelationsInputUpdate = t.Partial(
   t.Object(
     {
+      categories: t.Partial(
+        t.Object(
+          {
+            connect: t.Array(
+              t.Object(
+                {
+                  id: t.Integer({ additionalProperties: false }),
+                },
+                { additionalProperties: false },
+              ),
+              { additionalProperties: false },
+            ),
+            disconnect: t.Array(
+              t.Object(
+                {
+                  id: t.Integer({ additionalProperties: false }),
+                },
+                { additionalProperties: false },
+              ),
+              { additionalProperties: false },
+            ),
+          },
+          { additionalProperties: false },
+        ),
+      ),
+      images: t.Partial(
+        t.Object(
+          {
+            connect: t.Array(
+              t.Object(
+                {
+                  id: t.Integer({ additionalProperties: false }),
+                },
+                { additionalProperties: false },
+              ),
+              { additionalProperties: false },
+            ),
+            disconnect: t.Array(
+              t.Object(
+                {
+                  id: t.Integer({ additionalProperties: false }),
+                },
+                { additionalProperties: false },
+              ),
+              { additionalProperties: false },
+            ),
+          },
+          { additionalProperties: false },
+        ),
+      ),
       cartItems: t.Partial(
         t.Object(
           {
@@ -179,11 +300,15 @@ export const ProductWhere = t.Partial(
           id: t.Integer(),
           name: t.String(),
           description: t.String(),
-          price: t.Integer(),
-          imageUrl: t.String(),
+          price: t.Number(),
           stock: t.Integer(),
+          isPreorder: t.Boolean(),
+          leadTime: t.Integer(),
+          sortOrder: t.Integer(),
+          isFeatured: t.Boolean(),
           createdAt: t.Date(),
           updatedAt: t.Date(),
+          isActive: t.Boolean(),
         },
         { additionalProperties: false },
       ),
@@ -222,11 +347,15 @@ export const ProductWhereUnique = t.Recursive(
               id: t.Integer(),
               name: t.String(),
               description: t.String(),
-              price: t.Integer(),
-              imageUrl: t.String(),
+              price: t.Number(),
               stock: t.Integer(),
+              isPreorder: t.Boolean(),
+              leadTime: t.Integer(),
+              sortOrder: t.Integer(),
+              isFeatured: t.Boolean(),
               createdAt: t.Date(),
               updatedAt: t.Date(),
+              isActive: t.Boolean(),
             },
             { additionalProperties: false },
           ),
@@ -244,12 +373,18 @@ export const ProductSelect = t.Partial(
       name: t.Boolean(),
       description: t.Boolean(),
       price: t.Boolean(),
-      imageUrl: t.Boolean(),
       stock: t.Boolean(),
+      isPreorder: t.Boolean(),
+      leadTime: t.Boolean(),
+      sortOrder: t.Boolean(),
+      isFeatured: t.Boolean(),
+      categories: t.Boolean(),
+      images: t.Boolean(),
       cartItems: t.Boolean(),
       orderItems: t.Boolean(),
       createdAt: t.Boolean(),
       updatedAt: t.Boolean(),
+      isActive: t.Boolean(),
       _count: t.Boolean(),
     },
     { additionalProperties: false },
@@ -258,7 +393,13 @@ export const ProductSelect = t.Partial(
 
 export const ProductInclude = t.Partial(
   t.Object(
-    { cartItems: t.Boolean(), orderItems: t.Boolean(), _count: t.Boolean() },
+    {
+      categories: t.Boolean(),
+      images: t.Boolean(),
+      cartItems: t.Boolean(),
+      orderItems: t.Boolean(),
+      _count: t.Boolean(),
+    },
     { additionalProperties: false },
   ),
 );
@@ -278,16 +419,28 @@ export const ProductOrderBy = t.Partial(
       price: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
-      imageUrl: t.Union([t.Literal("asc"), t.Literal("desc")], {
+      stock: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
-      stock: t.Union([t.Literal("asc"), t.Literal("desc")], {
+      isPreorder: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      leadTime: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      sortOrder: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      isFeatured: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
       createdAt: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
       updatedAt: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      isActive: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
     },

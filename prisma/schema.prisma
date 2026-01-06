@@ -26,70 +26,125 @@ enum Role {
 }
 
 enum OrderStatus {
+  PENDING_PAYMENT       // รอชำระเงิน (ก้อนแรก หรือ เต็มจำนวน)
+  PENDING_DEPOSIT       // (กรณีสั่งทำ) รอชำระมัดจำ
+  IN_PRODUCTION         // (กรณีสั่งทำ) กำลังผลิตหลังได้มัดจำ
+  READY_TO_SHIP         // สินค้าพร้อมส่ง (หรือผลิตเสร็จแล้วรอจ่ายส่วนที่เหลือ)
+  COMPLETED             // เสร็จสมบูรณ์
+  CANCELLED             // ยกเลิก
+}
+
+enum PaymentType {
+  FULL_PAYMENT          // จ่ายเต็ม (สินค้ามีสต็อก)
+  DEPOSIT               // จ่ายมัดจำ (สินค้าสั่งทำ)
+  REMAINING_BALANCE     // จ่ายส่วนที่เหลือ (หลังผลิตเสร็จ)
+}
+
+enum PaymentStatus {
   PENDING
-  PAID
-  SHIPPED
-  DELIVERED
-  CANCELLED
+  APPROVED
+  REJECTED
 }
 
 model User {
-  id         Int         @id @default(autoincrement())
-  email      String      @unique
-  name       String
-  password   String
-  birth      DateTime?   @map("birth_date")
-  gender     String?
-  phone      String?
-  googleId   String?     @unique @map("google_id")
-  role       Role        @default(USER)
-  profile_image String?     @map("profile_image")
-  addresses  UserAddress[]
-  cartItems  CartItem[]
-  orders     Order[]
-  createdAt  DateTime    @default(now()) @map("created_at")
-  updatedAt  DateTime    @updatedAt @map("updated_at")
+  id           Int           @id @default(autoincrement()) @map("user_id")
+  email        String        @unique
+  name         String?
+  password     String
+  birth        DateTime?     @map("birth_date")
+  gender       String?
+  phone        String?
+  googleId     String?       @unique @map("google_id")
+  role         Role          @default(USER)
+  profileImage String?       @map("profile_image") // รูปโปรไฟล์ user เก็บ url ธรรมดาได้
+  
+  addresses    UserAddress[]
+  cartItems    CartItem[]
+  orders       Order[]
+
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
 
   @@map("users")
 }
 
+model Category {
+  id        Int       @id @default(autoincrement()) @map("category_id")
+  name      String
+  slug      String    @unique
+  products    CategoryProduct[]
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
 model Product {
-  id          Int         @id @default(autoincrement())
+  id          Int      @id @default(autoincrement()) @map("product_id")
   name        String
   description String?
-  price       Int // Store price in cents to avoid floating point issues
-  imageUrl    String?     @map("image_url")
-  stock       Int         @default(0)
+  price       Decimal  @db.Decimal(10, 2) // เปลี่ยนเป็น Decimal เพื่อคำนวณเงินง่ายขึ้น
+  
+  stock       Int      @default(0)
+  isPreorder  Boolean  @default(false) @map("is_preorder") // บังคับสั่งทำ
+  leadTime    Int?     @map("lead_time") // ระยะเวลาผลิต (วัน)
+
+  sortOrder   Int      @default(0) @map("sort_order") // สำหรับเรียงลำดับ (ค่าน้อยขึ้นก่อน)
+  isFeatured  Boolean  @default(false) @map("is_featured") // สินค้าแนะนำ
+
+  categories  CategoryProduct[]
+
+  images      ProductImage[]
+
   cartItems   CartItem[]
   orderItems  OrderItem[]
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
 
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  isActive    Boolean  @default(false) @map("is_active")
   @@map("products")
 }
 
+model ProductImage {
+  id        Int     @id @default(autoincrement()) @map("product_image_id")
+  productId Int     @map("product_id")
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  url       String  // Path ใน MinIO เช่น "products/1/cover.jpg"
+  sortOrder Int     @default(0) @map("sort_order") // ลำดับรูป
+  isMain    Boolean @default(false) @map("is_main") // เป็นรูปปกหรือไม่
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("product_images")
+}
+
 model CartItem {
-  id        Int      @id @default(autoincrement())
+  id        Int      @id @default(autoincrement()) @map("cart_item_id")
   quantity  Int      @default(1)
   userId    Int      @map("user_id")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   productId Int      @map("product_id")
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@unique([userId, productId]) // A user can only have one entry for each product in their cart
+  @@unique([userId, productId])
   @@map("cart_items")
 }
 
 model UserAddress {
-  id        Int      @id @default(autoincrement())
+  id        Int      @id @default(autoincrement()) @map("user_address_id")
   street    String
   city      String
   state     String
   country   String
   zipCode   String   @map("zip_code")
+  
   userId    Int      @map("user_id")
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
@@ -97,26 +152,72 @@ model UserAddress {
 }
 
 model Order {
-  id         Int         @id @default(autoincrement())
-  userId     Int         @map("user_id")
-  user       User        @relation(fields: [userId], references: [id])
-  totalPrice Int         @map("total_price") // Store in cents
-  status     OrderStatus @default(PENDING)
-  items      OrderItem[]
-  createdAt  DateTime    @default(now()) @map("created_at")
-  updatedAt  DateTime    @updatedAt @map("updated_at")
+  id            Int         @id @default(autoincrement()) @map("order_id")
+  userId        Int         @map("user_id")
+  user          User        @relation(fields: [userId], references: [id])
+  
+  status        OrderStatus @default(PENDING_PAYMENT)
+  
+  // Money Logic
+  totalPrice    Decimal     @map("total_price") @db.Decimal(10, 2)
+  depositAmount Decimal?    @map("deposit_amount") @db.Decimal(10, 2) // ยอดมัดจำ (ถ้ามี)
+  isDepositPaid Boolean     @default(false) @map("is_deposit_paid")
+  
+  // Snapshot Address (ป้องกัน User เปลี่ยนที่อยู่แล้วกระทบออเดอร์เก่า)
+  shippingAddress String    @map("shipping_address") @db.Text 
+
+  items         OrderItem[]
+  payments      Payment[]
+
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
 
   @@map("orders")
 }
 
 model OrderItem {
-  id        Int      @id @default(autoincrement())
-  orderId   Int      @map("order_id")
-  order     Order    @relation(fields: [orderId], references: [id])
-  productId Int      @map("product_id")
-  product   Product  @relation(fields: [productId], references: [id])
+  id        Int     @id @default(autoincrement()) @map("order_item_id")
+  orderId   Int     @map("order_id")
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int     @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+  
   quantity  Int
-  price     Int // Price at the time of purchase, in cents
+  price     Decimal @db.Decimal(10, 2) // บันทึกราคา ณ วันที่ซื้อ
 
   @@map("order_items")
+}
+
+model Payment {
+  id         Int           @id @default(autoincrement()) @map("payment_id")
+  orderId    Int           @map("order_id")
+  order      Order         @relation(fields: [orderId], references: [id])
+  
+  amount     Decimal       @db.Decimal(10, 2)
+  type       PaymentType
+  status     PaymentStatus @default(PENDING)
+  
+  slipUrl    String?       @map("slip_url") // รูปสลิป
+  transacRef String?       @map("transac_ref") // เลขที่รายการธนาคาร
+  
+  paidAt     DateTime?     @map("paid_at")
+  createdAt  DateTime      @default(now()) @map("created_at")
+
+  @@map("payments")
+}
+
+model CategoryProduct {
+  id          Int      @id @default(autoincrement()) @map("category_product_id")
+  productId   Int      @map("product_id")
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  categoryId  Int      @map("category_id")
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  sortOrder   Int      @default(0) @map("sort_order") 
+
+  assignedAt  DateTime @default(now()) @map("assigned_at")
+
+  @@unique([productId, categoryId]) 
+  @@map("category_products")
 }

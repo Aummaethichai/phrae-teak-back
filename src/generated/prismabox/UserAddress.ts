@@ -25,7 +25,7 @@ export const UserAddressRelations = t.Object(
       {
         id: t.Integer(),
         email: t.String(),
-        name: t.String(),
+        name: __nullable__(t.String()),
         password: t.String(),
         birth: __nullable__(t.Date()),
         gender: __nullable__(t.String()),
@@ -34,7 +34,7 @@ export const UserAddressRelations = t.Object(
         role: t.Union([t.Literal("USER"), t.Literal("ADMIN")], {
           additionalProperties: false,
         }),
-        profile_image: __nullable__(t.String()),
+        profileImage: __nullable__(t.String()),
         createdAt: t.Date(),
         updatedAt: t.Date(),
       },

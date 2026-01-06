@@ -4,43 +4,19 @@ import { __transformDate__ } from "./__transformDate__";
 
 import { __nullable__ } from "./__nullable__";
 
-export const OrderItemPlain = t.Object(
+export const CategoryProductPlain = t.Object(
   {
     id: t.Integer(),
-    orderId: t.Integer(),
     productId: t.Integer(),
-    quantity: t.Integer(),
-    price: t.Number(),
+    categoryId: t.Integer(),
+    sortOrder: t.Integer(),
+    assignedAt: t.Date(),
   },
   { additionalProperties: false },
 );
 
-export const OrderItemRelations = t.Object(
+export const CategoryProductRelations = t.Object(
   {
-    order: t.Object(
-      {
-        id: t.Integer(),
-        userId: t.Integer(),
-        status: t.Union(
-          [
-            t.Literal("PENDING_PAYMENT"),
-            t.Literal("PENDING_DEPOSIT"),
-            t.Literal("IN_PRODUCTION"),
-            t.Literal("READY_TO_SHIP"),
-            t.Literal("COMPLETED"),
-            t.Literal("CANCELLED"),
-          ],
-          { additionalProperties: false },
-        ),
-        totalPrice: t.Number(),
-        depositAmount: __nullable__(t.Number()),
-        isDepositPaid: t.Boolean(),
-        shippingAddress: t.String(),
-        createdAt: t.Date(),
-        updatedAt: t.Date(),
-      },
-      { additionalProperties: false },
-    ),
     product: t.Object(
       {
         id: t.Integer(),
@@ -58,33 +34,32 @@ export const OrderItemRelations = t.Object(
       },
       { additionalProperties: false },
     ),
+    category: t.Object(
+      {
+        id: t.Integer(),
+        name: t.String(),
+        slug: t.String(),
+        createdAt: t.Date(),
+        updatedAt: t.Date(),
+      },
+      { additionalProperties: false },
+    ),
   },
   { additionalProperties: false },
 );
 
-export const OrderItemPlainInputCreate = t.Object(
-  { quantity: t.Integer(), price: t.Number() },
+export const CategoryProductPlainInputCreate = t.Object(
+  { sortOrder: t.Optional(t.Integer()), assignedAt: t.Optional(t.Date()) },
   { additionalProperties: false },
 );
 
-export const OrderItemPlainInputUpdate = t.Object(
-  { quantity: t.Optional(t.Integer()), price: t.Optional(t.Number()) },
+export const CategoryProductPlainInputUpdate = t.Object(
+  { sortOrder: t.Optional(t.Integer()), assignedAt: t.Optional(t.Date()) },
   { additionalProperties: false },
 );
 
-export const OrderItemRelationsInputCreate = t.Object(
+export const CategoryProductRelationsInputCreate = t.Object(
   {
-    order: t.Object(
-      {
-        connect: t.Object(
-          {
-            id: t.Integer({ additionalProperties: false }),
-          },
-          { additionalProperties: false },
-        ),
-      },
-      { additionalProperties: false },
-    ),
     product: t.Object(
       {
         connect: t.Object(
@@ -96,14 +71,25 @@ export const OrderItemRelationsInputCreate = t.Object(
       },
       { additionalProperties: false },
     ),
+    category: t.Object(
+      {
+        connect: t.Object(
+          {
+            id: t.Integer({ additionalProperties: false }),
+          },
+          { additionalProperties: false },
+        ),
+      },
+      { additionalProperties: false },
+    ),
   },
   { additionalProperties: false },
 );
 
-export const OrderItemRelationsInputUpdate = t.Partial(
+export const CategoryProductRelationsInputUpdate = t.Partial(
   t.Object(
     {
-      order: t.Object(
+      product: t.Object(
         {
           connect: t.Object(
             {
@@ -114,7 +100,7 @@ export const OrderItemRelationsInputUpdate = t.Partial(
         },
         { additionalProperties: false },
       ),
-      product: t.Object(
+      category: t.Object(
         {
           connect: t.Object(
             {
@@ -130,7 +116,7 @@ export const OrderItemRelationsInputUpdate = t.Partial(
   ),
 );
 
-export const OrderItemWhere = t.Partial(
+export const CategoryProductWhere = t.Partial(
   t.Recursive(
     (Self) =>
       t.Object(
@@ -139,28 +125,46 @@ export const OrderItemWhere = t.Partial(
           NOT: t.Union([Self, t.Array(Self, { additionalProperties: false })]),
           OR: t.Array(Self, { additionalProperties: false }),
           id: t.Integer(),
-          orderId: t.Integer(),
           productId: t.Integer(),
-          quantity: t.Integer(),
-          price: t.Number(),
+          categoryId: t.Integer(),
+          sortOrder: t.Integer(),
+          assignedAt: t.Date(),
         },
         { additionalProperties: false },
       ),
-    { $id: "OrderItem" },
+    { $id: "CategoryProduct" },
   ),
 );
 
-export const OrderItemWhereUnique = t.Recursive(
+export const CategoryProductWhereUnique = t.Recursive(
   (Self) =>
     t.Intersect(
       [
         t.Partial(
-          t.Object({ id: t.Integer() }, { additionalProperties: false }),
+          t.Object(
+            {
+              id: t.Integer(),
+              productId_categoryId: t.Object(
+                { productId: t.Integer(), categoryId: t.Integer() },
+                { additionalProperties: false },
+              ),
+            },
+            { additionalProperties: false },
+          ),
           { additionalProperties: false },
         ),
-        t.Union([t.Object({ id: t.Integer() })], {
-          additionalProperties: false,
-        }),
+        t.Union(
+          [
+            t.Object({ id: t.Integer() }),
+            t.Object({
+              productId_categoryId: t.Object(
+                { productId: t.Integer(), categoryId: t.Integer() },
+                { additionalProperties: false },
+              ),
+            }),
+          ],
+          { additionalProperties: false },
+        ),
         t.Partial(
           t.Object({
             AND: t.Union([
@@ -179,10 +183,10 @@ export const OrderItemWhereUnique = t.Recursive(
           t.Object(
             {
               id: t.Integer(),
-              orderId: t.Integer(),
               productId: t.Integer(),
-              quantity: t.Integer(),
-              price: t.Number(),
+              categoryId: t.Integer(),
+              sortOrder: t.Integer(),
+              assignedAt: t.Date(),
             },
             { additionalProperties: false },
           ),
@@ -190,48 +194,48 @@ export const OrderItemWhereUnique = t.Recursive(
       ],
       { additionalProperties: false },
     ),
-  { $id: "OrderItem" },
+  { $id: "CategoryProduct" },
 );
 
-export const OrderItemSelect = t.Partial(
+export const CategoryProductSelect = t.Partial(
   t.Object(
     {
       id: t.Boolean(),
-      orderId: t.Boolean(),
-      order: t.Boolean(),
       productId: t.Boolean(),
       product: t.Boolean(),
-      quantity: t.Boolean(),
-      price: t.Boolean(),
+      categoryId: t.Boolean(),
+      category: t.Boolean(),
+      sortOrder: t.Boolean(),
+      assignedAt: t.Boolean(),
       _count: t.Boolean(),
     },
     { additionalProperties: false },
   ),
 );
 
-export const OrderItemInclude = t.Partial(
+export const CategoryProductInclude = t.Partial(
   t.Object(
-    { order: t.Boolean(), product: t.Boolean(), _count: t.Boolean() },
+    { product: t.Boolean(), category: t.Boolean(), _count: t.Boolean() },
     { additionalProperties: false },
   ),
 );
 
-export const OrderItemOrderBy = t.Partial(
+export const CategoryProductOrderBy = t.Partial(
   t.Object(
     {
       id: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
-      orderId: t.Union([t.Literal("asc"), t.Literal("desc")], {
-        additionalProperties: false,
-      }),
       productId: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
-      quantity: t.Union([t.Literal("asc"), t.Literal("desc")], {
+      categoryId: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
-      price: t.Union([t.Literal("asc"), t.Literal("desc")], {
+      sortOrder: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      assignedAt: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
     },
@@ -239,16 +243,17 @@ export const OrderItemOrderBy = t.Partial(
   ),
 );
 
-export const OrderItem = t.Composite([OrderItemPlain, OrderItemRelations], {
-  additionalProperties: false,
-});
-
-export const OrderItemInputCreate = t.Composite(
-  [OrderItemPlainInputCreate, OrderItemRelationsInputCreate],
+export const CategoryProduct = t.Composite(
+  [CategoryProductPlain, CategoryProductRelations],
   { additionalProperties: false },
 );
 
-export const OrderItemInputUpdate = t.Composite(
-  [OrderItemPlainInputUpdate, OrderItemRelationsInputUpdate],
+export const CategoryProductInputCreate = t.Composite(
+  [CategoryProductPlainInputCreate, CategoryProductRelationsInputCreate],
+  { additionalProperties: false },
+);
+
+export const CategoryProductInputUpdate = t.Composite(
+  [CategoryProductPlainInputUpdate, CategoryProductRelationsInputUpdate],
   { additionalProperties: false },
 );

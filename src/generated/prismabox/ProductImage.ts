@@ -4,43 +4,20 @@ import { __transformDate__ } from "./__transformDate__";
 
 import { __nullable__ } from "./__nullable__";
 
-export const OrderItemPlain = t.Object(
+export const ProductImagePlain = t.Object(
   {
     id: t.Integer(),
-    orderId: t.Integer(),
     productId: t.Integer(),
-    quantity: t.Integer(),
-    price: t.Number(),
+    url: t.String(),
+    sortOrder: t.Integer(),
+    isMain: t.Boolean(),
+    createdAt: t.Date(),
   },
   { additionalProperties: false },
 );
 
-export const OrderItemRelations = t.Object(
+export const ProductImageRelations = t.Object(
   {
-    order: t.Object(
-      {
-        id: t.Integer(),
-        userId: t.Integer(),
-        status: t.Union(
-          [
-            t.Literal("PENDING_PAYMENT"),
-            t.Literal("PENDING_DEPOSIT"),
-            t.Literal("IN_PRODUCTION"),
-            t.Literal("READY_TO_SHIP"),
-            t.Literal("COMPLETED"),
-            t.Literal("CANCELLED"),
-          ],
-          { additionalProperties: false },
-        ),
-        totalPrice: t.Number(),
-        depositAmount: __nullable__(t.Number()),
-        isDepositPaid: t.Boolean(),
-        shippingAddress: t.String(),
-        createdAt: t.Date(),
-        updatedAt: t.Date(),
-      },
-      { additionalProperties: false },
-    ),
     product: t.Object(
       {
         id: t.Integer(),
@@ -62,29 +39,26 @@ export const OrderItemRelations = t.Object(
   { additionalProperties: false },
 );
 
-export const OrderItemPlainInputCreate = t.Object(
-  { quantity: t.Integer(), price: t.Number() },
-  { additionalProperties: false },
-);
-
-export const OrderItemPlainInputUpdate = t.Object(
-  { quantity: t.Optional(t.Integer()), price: t.Optional(t.Number()) },
-  { additionalProperties: false },
-);
-
-export const OrderItemRelationsInputCreate = t.Object(
+export const ProductImagePlainInputCreate = t.Object(
   {
-    order: t.Object(
-      {
-        connect: t.Object(
-          {
-            id: t.Integer({ additionalProperties: false }),
-          },
-          { additionalProperties: false },
-        ),
-      },
-      { additionalProperties: false },
-    ),
+    url: t.String(),
+    sortOrder: t.Optional(t.Integer()),
+    isMain: t.Optional(t.Boolean()),
+  },
+  { additionalProperties: false },
+);
+
+export const ProductImagePlainInputUpdate = t.Object(
+  {
+    url: t.Optional(t.String()),
+    sortOrder: t.Optional(t.Integer()),
+    isMain: t.Optional(t.Boolean()),
+  },
+  { additionalProperties: false },
+);
+
+export const ProductImageRelationsInputCreate = t.Object(
+  {
     product: t.Object(
       {
         connect: t.Object(
@@ -100,20 +74,9 @@ export const OrderItemRelationsInputCreate = t.Object(
   { additionalProperties: false },
 );
 
-export const OrderItemRelationsInputUpdate = t.Partial(
+export const ProductImageRelationsInputUpdate = t.Partial(
   t.Object(
     {
-      order: t.Object(
-        {
-          connect: t.Object(
-            {
-              id: t.Integer({ additionalProperties: false }),
-            },
-            { additionalProperties: false },
-          ),
-        },
-        { additionalProperties: false },
-      ),
       product: t.Object(
         {
           connect: t.Object(
@@ -130,7 +93,7 @@ export const OrderItemRelationsInputUpdate = t.Partial(
   ),
 );
 
-export const OrderItemWhere = t.Partial(
+export const ProductImageWhere = t.Partial(
   t.Recursive(
     (Self) =>
       t.Object(
@@ -139,18 +102,19 @@ export const OrderItemWhere = t.Partial(
           NOT: t.Union([Self, t.Array(Self, { additionalProperties: false })]),
           OR: t.Array(Self, { additionalProperties: false }),
           id: t.Integer(),
-          orderId: t.Integer(),
           productId: t.Integer(),
-          quantity: t.Integer(),
-          price: t.Number(),
+          url: t.String(),
+          sortOrder: t.Integer(),
+          isMain: t.Boolean(),
+          createdAt: t.Date(),
         },
         { additionalProperties: false },
       ),
-    { $id: "OrderItem" },
+    { $id: "ProductImage" },
   ),
 );
 
-export const OrderItemWhereUnique = t.Recursive(
+export const ProductImageWhereUnique = t.Recursive(
   (Self) =>
     t.Intersect(
       [
@@ -179,10 +143,11 @@ export const OrderItemWhereUnique = t.Recursive(
           t.Object(
             {
               id: t.Integer(),
-              orderId: t.Integer(),
               productId: t.Integer(),
-              quantity: t.Integer(),
-              price: t.Number(),
+              url: t.String(),
+              sortOrder: t.Integer(),
+              isMain: t.Boolean(),
+              createdAt: t.Date(),
             },
             { additionalProperties: false },
           ),
@@ -190,48 +155,51 @@ export const OrderItemWhereUnique = t.Recursive(
       ],
       { additionalProperties: false },
     ),
-  { $id: "OrderItem" },
+  { $id: "ProductImage" },
 );
 
-export const OrderItemSelect = t.Partial(
+export const ProductImageSelect = t.Partial(
   t.Object(
     {
       id: t.Boolean(),
-      orderId: t.Boolean(),
-      order: t.Boolean(),
       productId: t.Boolean(),
       product: t.Boolean(),
-      quantity: t.Boolean(),
-      price: t.Boolean(),
+      url: t.Boolean(),
+      sortOrder: t.Boolean(),
+      isMain: t.Boolean(),
+      createdAt: t.Boolean(),
       _count: t.Boolean(),
     },
     { additionalProperties: false },
   ),
 );
 
-export const OrderItemInclude = t.Partial(
+export const ProductImageInclude = t.Partial(
   t.Object(
-    { order: t.Boolean(), product: t.Boolean(), _count: t.Boolean() },
+    { product: t.Boolean(), _count: t.Boolean() },
     { additionalProperties: false },
   ),
 );
 
-export const OrderItemOrderBy = t.Partial(
+export const ProductImageOrderBy = t.Partial(
   t.Object(
     {
       id: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
-      orderId: t.Union([t.Literal("asc"), t.Literal("desc")], {
-        additionalProperties: false,
-      }),
       productId: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
-      quantity: t.Union([t.Literal("asc"), t.Literal("desc")], {
+      url: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
-      price: t.Union([t.Literal("asc"), t.Literal("desc")], {
+      sortOrder: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      isMain: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      createdAt: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
     },
@@ -239,16 +207,17 @@ export const OrderItemOrderBy = t.Partial(
   ),
 );
 
-export const OrderItem = t.Composite([OrderItemPlain, OrderItemRelations], {
-  additionalProperties: false,
-});
-
-export const OrderItemInputCreate = t.Composite(
-  [OrderItemPlainInputCreate, OrderItemRelationsInputCreate],
+export const ProductImage = t.Composite(
+  [ProductImagePlain, ProductImageRelations],
   { additionalProperties: false },
 );
 
-export const OrderItemInputUpdate = t.Composite(
-  [OrderItemPlainInputUpdate, OrderItemRelationsInputUpdate],
+export const ProductImageInputCreate = t.Composite(
+  [ProductImagePlainInputCreate, ProductImageRelationsInputCreate],
+  { additionalProperties: false },
+);
+
+export const ProductImageInputUpdate = t.Composite(
+  [ProductImagePlainInputUpdate, ProductImageRelationsInputUpdate],
   { additionalProperties: false },
 );
