@@ -37,7 +37,7 @@ export const productRoutes = new Elysia({ prefix: "/products" })
       description: t.Optional(t.String()),
       price: t.Numeric(),
       stock: t.Numeric(),
-      categoryId: t.Array(t.Numeric()),
+      categoryId: t.Union([t.Numeric(), t.Array(t.Numeric())]),
       isPreorder: t.Optional(t.Boolean()),
       leadTime: t.Optional(t.Numeric()),
       images: t.Files()

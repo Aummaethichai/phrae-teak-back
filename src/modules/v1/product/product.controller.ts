@@ -122,13 +122,17 @@ export class ProductController {
     try {
       const { images, ...data } = body;
 
+      const categoryIds = Array.isArray(body.categoryId) 
+        ? body.categoryId 
+        : [body.categoryId];
+
       const product = await this.productService.createProductWithImages(
         {
           name: data.name,
           description: data.description,
           price: Number(data.price),
           stock: Number(data.stock),
-          categoryId: data.categoryId,
+          categoryId: categoryIds.map((id: number) => ({ id })),
           isPreorder: Boolean(data.isPreorder),
           leadTime: data.leadTime ? Number(data.leadTime) : undefined,
         },
