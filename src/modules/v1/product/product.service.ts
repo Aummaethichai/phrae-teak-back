@@ -9,11 +9,37 @@ export class ProductService {
   async getAll() {
     return await prisma.product.findMany({
       orderBy: { createdAt: 'desc' },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        stock: true,
+        isPreorder: true,
+        leadTime: true,
+        isActive: true,
+        // createdAt:false,
+        // updatedAt:false,
         images: {
-          orderBy: { sortOrder: 'asc' }
+          orderBy: { sortOrder: 'asc' },
+          select: {
+            id: true,
+            productId: true,
+            url: true,
+            sortOrder: true,
+            isMain: true,
+            // createdAt:false,
+          }
         },
-        category: true
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+            // createdAt:false,
+            // updatedAt:false,
+          }
+        }
       }
     });
   }
@@ -79,19 +105,19 @@ export class ProductService {
       for (const [index, file] of files.entries()) {
         const path = await uploadFile(file);
         uploadedImages.push({
-            url: path,
-            sortOrder: index,
-            isMain: index === 0
+          url: path,
+          sortOrder: index,
+          isMain: index === 0
         });
       }
     } else if (files) {
-        // Single file case
-        const path = await uploadFile(files as unknown as File);
-        uploadedImages.push({
-            url: path,
-            sortOrder: 0,
-            isMain: true
-        });
+      // Single file case
+      const path = await uploadFile(files as unknown as File);
+      uploadedImages.push({
+        url: path,
+        sortOrder: 0,
+        isMain: true
+      });
     }
 
     return await prisma.product.create({
@@ -107,8 +133,33 @@ export class ProductService {
           create: uploadedImages
         }
       },
-      include: {
-        images: true
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        price: true,
+        stock: true,
+        isPreorder: true,
+        leadTime: true,
+        isActive: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          }
+        },
+        images: {
+          select: {
+            id: true,
+            url: true,
+            sortOrder: true,
+            isMain: true
+          },
+          orderBy: {
+            sortOrder: 'asc'
+          }
+        }
       }
     });
   }

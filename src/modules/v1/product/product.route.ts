@@ -18,6 +18,7 @@ export const productRoutes = new Elysia({ prefix: "/products" })
 
   // Protected Routes (ต้อง Login ก่อน)
   .use(isAuthenticated)
+  // create products
   .post("/", productController.createProduct, {
     body: CreateProductDTO,
   })

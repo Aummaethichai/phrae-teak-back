@@ -3,7 +3,6 @@ import { prisma } from "../../../config/prisma";
 import { bucketName, minioClient } from "../../../config/minio";
 import { logger } from "../../../utils/logger";
 import path from "path";
-import sharp from "sharp";
 
 type GetFileContext = {
     params: { id: string };
@@ -41,53 +40,14 @@ export class FileController {
                 return stream;
             } else if (['.jpg', '.jpeg', '.png', '.webp'].includes(fileExtension)) {
                 const stream = await minioClient.getObject(bucketName, fileName);
-                const rawBuffer = await streamToBuffer(stream);
 
-                // --- แก้ไขจุดที่ 1: Rotate ให้เสร็จก่อนเช็คขนาด ---
-                // .rotate() จะจัดการเรื่องรูปแนวตั้ง/แนวนอนให้ถูกต้องตาม EXIF
-                const imageBuffer = await sharp(rawBuffer).rotate().toBuffer();
+                if (fileExtension === '.webp') set.headers['Content-Type'] = 'image/webp';
+                if (fileExtension === '.png') set.headers['Content-Type'] = 'image/png';
+                if (fileExtension === '.jpg' || fileExtension === '.jpeg') set.headers['Content-Type'] = 'image/jpeg';
 
-                // 1. ดึงขนาดจากรูปที่ Rotate แล้ว (ใช้ Math.floor กันเหนียวเรื่องจุดทศนิยม)
-                const metadata = await sharp(imageBuffer).metadata();
-                const width = Math.floor(metadata.width || 1000);
-                const height = Math.floor(metadata.height || 1000);
-                const watermarkText = `www.phraeteak.com`;
-                const svgWatermark = `
-                    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <pattern id="watermark-pattern" width="300" height="300" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
-                                <text 
-                                    x="50%" 
-                                    y="50%" 
-                                    text-anchor="middle" 
-                                    fill="rgba(0, 0, 0, 0.26)" 
-                                    font-size="24" 
-                                    font-weight="bold" 
-                                    font-family="Arial, sans-serif"
-                                >
-                                    ${watermarkText}
-                                </text>
-                            </pattern>
-                        </defs>
-                        <rect width="100%" height="100%" fill="url(#watermark-pattern)" />
-                    </svg>
-                `;
-                // const watermarkBuffer = Buffer.from(svgWatermark);
+                set.headers['Cache-Control'] = 'public, max-age=31536000'; // Cache ได้นานๆ เลยเพราะรูปไม่เปลี่ยน
 
-                // 4. ใช้ Sharp ประมวลผลภาพ
-                const processedImage = await sharp(imageBuffer)
-                    .composite([{
-                        input: Buffer.from(svgWatermark),
-                        blend: 'over',
-                        top: 0,
-                        left: 0
-                    }])
-                    .webp({ quality: 75 })
-                    .toBuffer();
-
-                set.headers['Content-Type'] = 'image/webp';
-
-                return processedImage;
+                return stream;
             } else if (fileExtension === '.mp4') {
                 const objectStat = await minioClient.statObject(bucketName, fileName);
                 const fileSize = objectStat.size;

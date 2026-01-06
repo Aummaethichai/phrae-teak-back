@@ -118,9 +118,8 @@ export class ProductController {
   };
 
   // POST /api/v1/products/admin
-  createProductAdmin = async ({ body, set }: { body: any; set: Context["set"] }) => {
+  createProductAdmin = async ({ body, set, headers }: { body: any; set: Context["set"]; headers: Context["headers"] }) => {
     try {
-      // Body is validated by Elysia schema in route
       const { images, ...data } = body;
 
       const product = await this.productService.createProductWithImages(
@@ -136,7 +135,21 @@ export class ProductController {
         images
       );
 
-      return apiResponse.created(set, product);
+      const protocol =
+        process.env.APP_ENV === 'development' ? 'http' : 'https';
+      const hostName = headers['host'];
+
+      const response = {
+        ...product,
+        images: product.images.map(image => {
+          return {
+            ...image,
+            url: `${protocol}://${hostName}/api/v1/files/${image.id}`
+          }
+        })
+      };
+
+      return apiResponse.created(set, response);
     } catch (error: any) {
       logger.error(error);
       return apiResponse.internalServerError(set, error.message);
