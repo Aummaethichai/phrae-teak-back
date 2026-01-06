@@ -72,7 +72,7 @@ model Category {
   id        Int       @id @default(autoincrement()) @map("category_id")
   name      String
   slug      String    @unique
-  products  Product[]
+  products    CategoryProduct[]
 
   createdAt DateTime  @default(now()) @map("created_at")
   updatedAt DateTime  @updatedAt @map("updated_at")
@@ -90,8 +90,10 @@ model Product {
   isPreorder  Boolean  @default(false) @map("is_preorder") // บังคับสั่งทำ
   leadTime    Int?     @map("lead_time") // ระยะเวลาผลิต (วัน)
 
-  categoryId  Int      @map("category_id")
-  category    Category @relation(fields: [categoryId], references: [id])
+  sortOrder   Int      @default(0) @map("sort_order") // สำหรับเรียงลำดับ (ค่าน้อยขึ้นก่อน)
+  isFeatured  Boolean  @default(false) @map("is_featured") // สินค้าแนะนำ
+
+  categories  CategoryProduct[]
 
   images      ProductImage[]
 
@@ -202,4 +204,20 @@ model Payment {
   createdAt  DateTime      @default(now()) @map("created_at")
 
   @@map("payments")
+}
+
+model CategoryProduct {
+  id          Int      @id @default(autoincrement()) @map("category_product_id")
+  productId   Int      @map("product_id")
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  categoryId  Int      @map("category_id")
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  sortOrder   Int      @default(0) @map("sort_order") 
+
+  assignedAt  DateTime @default(now()) @map("assigned_at")
+
+  @@unique([productId, categoryId]) 
+  @@map("category_products")
 }

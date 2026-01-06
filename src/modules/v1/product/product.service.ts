@@ -31,13 +31,15 @@ export class ProductService {
             // createdAt:false,
           }
         },
-        category: {
+        categories: {
           select: {
-            id: true,
-            name: true,
-            slug: true,
-            // createdAt:false,
-            // updatedAt:false,
+            category: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              }
+            },
           }
         }
       }
@@ -52,7 +54,7 @@ export class ProductService {
         images: {
           orderBy: { sortOrder: 'asc' }
         },
-        category: true
+        categories: true
       }
     });
   }
@@ -65,7 +67,11 @@ export class ProductService {
         price: data.price,
         description: data.description ?? null,
         stock: data.stock ?? 0,
-        categoryId: data.categoryId,
+        categories: {
+          create: {
+            categoryId: data.categoryId
+          }
+        },
       }
     });
   }
@@ -94,7 +100,7 @@ export class ProductService {
       description?: string | null;
       price: number;
       stock?: number;
-      categoryId: number;
+      categoryId: [];
       isPreorder?: boolean;
       leadTime?: number;
     },
@@ -120,13 +126,20 @@ export class ProductService {
       });
     }
 
+    // if (!data.categoryId.length && Array.isArray(data.categoryId)) {
+    //   throw new Error("Category is required");
+    // }
     return await prisma.product.create({
       data: {
         name: data.name,
         description: data.description,
         price: data.price,
         stock: data.stock ?? 0,
-        categoryId: data.categoryId,
+        categories: {
+          create: data.categoryId.map((categoryId) => ({
+            categoryId
+          }))
+        },
         isPreorder: data.isPreorder ?? false,
         leadTime: data.leadTime,
         images: {
@@ -142,11 +155,10 @@ export class ProductService {
         isPreorder: true,
         leadTime: true,
         isActive: true,
-        category: {
+        categories: {
           select: {
             id: true,
-            name: true,
-            slug: true,
+            categoryId: true,
           }
         },
         images: {

@@ -128,7 +128,7 @@ export class ProductController {
           description: data.description,
           price: Number(data.price),
           stock: Number(data.stock),
-          categoryId: Number(data.categoryId),
+          categoryId: data.categoryId,
           isPreorder: Boolean(data.isPreorder),
           leadTime: data.leadTime ? Number(data.leadTime) : undefined,
         },

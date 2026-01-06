@@ -13,7 +13,8 @@ export const ProductPlain = t.Object(
     stock: t.Integer(),
     isPreorder: t.Boolean(),
     leadTime: __nullable__(t.Integer()),
-    categoryId: t.Integer(),
+    sortOrder: t.Integer(),
+    isFeatured: t.Boolean(),
     createdAt: t.Date(),
     updatedAt: t.Date(),
     isActive: t.Boolean(),
@@ -23,14 +24,17 @@ export const ProductPlain = t.Object(
 
 export const ProductRelations = t.Object(
   {
-    category: t.Object(
-      {
-        id: t.Integer(),
-        name: t.String(),
-        slug: t.String(),
-        createdAt: t.Date(),
-        updatedAt: t.Date(),
-      },
+    categories: t.Array(
+      t.Object(
+        {
+          id: t.Integer(),
+          productId: t.Integer(),
+          categoryId: t.Integer(),
+          sortOrder: t.Integer(),
+          assignedAt: t.Date(),
+        },
+        { additionalProperties: false },
+      ),
       { additionalProperties: false },
     ),
     images: t.Array(
@@ -85,6 +89,8 @@ export const ProductPlainInputCreate = t.Object(
     stock: t.Optional(t.Integer()),
     isPreorder: t.Optional(t.Boolean()),
     leadTime: t.Optional(__nullable__(t.Integer())),
+    sortOrder: t.Optional(t.Integer()),
+    isFeatured: t.Optional(t.Boolean()),
     isActive: t.Optional(t.Boolean()),
   },
   { additionalProperties: false },
@@ -98,6 +104,8 @@ export const ProductPlainInputUpdate = t.Object(
     stock: t.Optional(t.Integer()),
     isPreorder: t.Optional(t.Boolean()),
     leadTime: t.Optional(__nullable__(t.Integer())),
+    sortOrder: t.Optional(t.Integer()),
+    isFeatured: t.Optional(t.Boolean()),
     isActive: t.Optional(t.Boolean()),
   },
   { additionalProperties: false },
@@ -105,16 +113,21 @@ export const ProductPlainInputUpdate = t.Object(
 
 export const ProductRelationsInputCreate = t.Object(
   {
-    category: t.Object(
-      {
-        connect: t.Object(
-          {
-            id: t.Integer({ additionalProperties: false }),
-          },
-          { additionalProperties: false },
-        ),
-      },
-      { additionalProperties: false },
+    categories: t.Optional(
+      t.Object(
+        {
+          connect: t.Array(
+            t.Object(
+              {
+                id: t.Integer({ additionalProperties: false }),
+              },
+              { additionalProperties: false },
+            ),
+            { additionalProperties: false },
+          ),
+        },
+        { additionalProperties: false },
+      ),
     ),
     images: t.Optional(
       t.Object(
@@ -171,16 +184,30 @@ export const ProductRelationsInputCreate = t.Object(
 export const ProductRelationsInputUpdate = t.Partial(
   t.Object(
     {
-      category: t.Object(
-        {
-          connect: t.Object(
-            {
-              id: t.Integer({ additionalProperties: false }),
-            },
-            { additionalProperties: false },
-          ),
-        },
-        { additionalProperties: false },
+      categories: t.Partial(
+        t.Object(
+          {
+            connect: t.Array(
+              t.Object(
+                {
+                  id: t.Integer({ additionalProperties: false }),
+                },
+                { additionalProperties: false },
+              ),
+              { additionalProperties: false },
+            ),
+            disconnect: t.Array(
+              t.Object(
+                {
+                  id: t.Integer({ additionalProperties: false }),
+                },
+                { additionalProperties: false },
+              ),
+              { additionalProperties: false },
+            ),
+          },
+          { additionalProperties: false },
+        ),
       ),
       images: t.Partial(
         t.Object(
@@ -277,7 +304,8 @@ export const ProductWhere = t.Partial(
           stock: t.Integer(),
           isPreorder: t.Boolean(),
           leadTime: t.Integer(),
-          categoryId: t.Integer(),
+          sortOrder: t.Integer(),
+          isFeatured: t.Boolean(),
           createdAt: t.Date(),
           updatedAt: t.Date(),
           isActive: t.Boolean(),
@@ -323,7 +351,8 @@ export const ProductWhereUnique = t.Recursive(
               stock: t.Integer(),
               isPreorder: t.Boolean(),
               leadTime: t.Integer(),
-              categoryId: t.Integer(),
+              sortOrder: t.Integer(),
+              isFeatured: t.Boolean(),
               createdAt: t.Date(),
               updatedAt: t.Date(),
               isActive: t.Boolean(),
@@ -347,8 +376,9 @@ export const ProductSelect = t.Partial(
       stock: t.Boolean(),
       isPreorder: t.Boolean(),
       leadTime: t.Boolean(),
-      categoryId: t.Boolean(),
-      category: t.Boolean(),
+      sortOrder: t.Boolean(),
+      isFeatured: t.Boolean(),
+      categories: t.Boolean(),
       images: t.Boolean(),
       cartItems: t.Boolean(),
       orderItems: t.Boolean(),
@@ -364,7 +394,7 @@ export const ProductSelect = t.Partial(
 export const ProductInclude = t.Partial(
   t.Object(
     {
-      category: t.Boolean(),
+      categories: t.Boolean(),
       images: t.Boolean(),
       cartItems: t.Boolean(),
       orderItems: t.Boolean(),
@@ -398,7 +428,10 @@ export const ProductOrderBy = t.Partial(
       leadTime: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
-      categoryId: t.Union([t.Literal("asc"), t.Literal("desc")], {
+      sortOrder: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      isFeatured: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
       createdAt: t.Union([t.Literal("asc"), t.Literal("desc")], {

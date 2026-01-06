@@ -11,5 +11,6 @@ export * from "./UserAddress";
 export * from "./Order";
 export * from "./OrderItem";
 export * from "./Payment";
+export * from "./CategoryProduct";
 export * from "./__nullable__";
 export * from "./__transformDate__";

@@ -1,6 +1,7 @@
 import { Elysia, t } from "elysia";
 import { ProductController } from "./product.controller";
-import { isAuthenticated } from "../../../middlewares/auth.middleware";
+import { isAuthenticated, isAdmin } from "../../../middlewares/auth.middleware";
+import { apiResponse } from "../../../utils/response";
 import {
   ProductPlainInputCreate,
   ProductPlainInputUpdate,
@@ -29,13 +30,14 @@ export const productRoutes = new Elysia({ prefix: "/products" })
   .delete("/:id", productController.deleteProduct, {
     params: t.Object({ id: t.String() }),
   })
+  .use(isAdmin)
   .post("/admin", productController.createProductAdmin, {
     body: t.Object({
       name: t.String(),
       description: t.Optional(t.String()),
       price: t.Numeric(),
       stock: t.Numeric(),
-      categoryId: t.Numeric(),
+      categoryId: t.Array(t.Numeric()),
       isPreorder: t.Optional(t.Boolean()),
       leadTime: t.Optional(t.Numeric()),
       images: t.Files()
