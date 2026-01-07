@@ -39,6 +39,7 @@ export const CategoryProductRelations = t.Object(
         id: t.Integer(),
         name: t.String(),
         slug: t.String(),
+        isActive: t.Boolean(),
         createdAt: t.Date(),
         updatedAt: t.Date(),
       },

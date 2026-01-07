@@ -9,6 +9,7 @@ export const CategoryPlain = t.Object(
     id: t.Integer(),
     name: t.String(),
     slug: t.String(),
+    isActive: t.Boolean(),
     createdAt: t.Date(),
     updatedAt: t.Date(),
   },
@@ -35,12 +36,16 @@ export const CategoryRelations = t.Object(
 );
 
 export const CategoryPlainInputCreate = t.Object(
-  { name: t.String(), slug: t.String() },
+  { name: t.String(), slug: t.String(), isActive: t.Optional(t.Boolean()) },
   { additionalProperties: false },
 );
 
 export const CategoryPlainInputUpdate = t.Object(
-  { name: t.Optional(t.String()), slug: t.Optional(t.String()) },
+  {
+    name: t.Optional(t.String()),
+    slug: t.Optional(t.String()),
+    isActive: t.Optional(t.Boolean()),
+  },
   { additionalProperties: false },
 );
 
@@ -110,6 +115,7 @@ export const CategoryWhere = t.Partial(
           id: t.Integer(),
           name: t.String(),
           slug: t.String(),
+          isActive: t.Boolean(),
           createdAt: t.Date(),
           updatedAt: t.Date(),
         },
@@ -154,6 +160,7 @@ export const CategoryWhereUnique = t.Recursive(
               id: t.Integer(),
               name: t.String(),
               slug: t.String(),
+              isActive: t.Boolean(),
               createdAt: t.Date(),
               updatedAt: t.Date(),
             },
@@ -172,6 +179,7 @@ export const CategorySelect = t.Partial(
       id: t.Boolean(),
       name: t.Boolean(),
       slug: t.Boolean(),
+      isActive: t.Boolean(),
       products: t.Boolean(),
       createdAt: t.Boolean(),
       updatedAt: t.Boolean(),
@@ -198,6 +206,9 @@ export const CategoryOrderBy = t.Partial(
         additionalProperties: false,
       }),
       slug: t.Union([t.Literal("asc"), t.Literal("desc")], {
+        additionalProperties: false,
+      }),
+      isActive: t.Union([t.Literal("asc"), t.Literal("desc")], {
         additionalProperties: false,
       }),
       createdAt: t.Union([t.Literal("asc"), t.Literal("desc")], {
