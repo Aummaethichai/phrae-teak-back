@@ -13,7 +13,7 @@ export class CategoryService {
                 id: true,
                 name: true,
                 slug: true,
-                isActive: true,
+                isActive: role === 'admin',
             }
         });
     }
