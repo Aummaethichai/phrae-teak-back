@@ -136,9 +136,17 @@ export class ProductService {
         price: data.price,
         stock: data.stock ?? 0,
         categories: {
-          create: data.categoryId.map((categoryId) => ({
-            categoryId
-          }))
+          create: data.categoryId.map((item: any, index: number) => {
+            const catId = typeof item === 'object' ? item.id : item;
+            return {
+              category: {
+                connect: {
+                  id: Number(catId)
+                }
+              },
+              sortOrder: index
+            };
+          })
         },
         isPreorder: data.isPreorder ?? false,
         leadTime: data.leadTime,

@@ -5,9 +5,10 @@ import { CategoryController } from "./category.controller";
 const categoryController = new CategoryController();
 
 export const categoryRoute = new Elysia({ prefix: "/category" })
+    .get('/', categoryController.getCategories)
     .use(isAuthenticated)
     .use(isAdmin)
-    .get('/', categoryController.getCategories)
+    .get('/admin/', categoryController.getCategoriesAdmin)
     .post('/', categoryController.createCategory, {
         body: t.Object({
             name: t.String(),

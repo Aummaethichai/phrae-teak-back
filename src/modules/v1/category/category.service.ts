@@ -2,19 +2,20 @@ import { prisma } from "../../../config/prisma";
 
 export class CategoryService {
 
-    async getAll() {
+    async getAll(role: string) {
+        const whereCondition = role === 'admin' ? {} : { isActive: true };
         return await prisma.category.findMany({
             orderBy: {
                 id: 'asc'
             },
+            where: whereCondition,
             select: {
                 id: true,
                 name: true,
                 slug: true,
                 isActive: true,
             }
-        }
-        );
+        });
     }
 
     async findById(id: number) {

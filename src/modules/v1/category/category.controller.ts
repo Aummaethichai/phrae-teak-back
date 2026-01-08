@@ -7,7 +7,16 @@ export class CategoryController {
 
     getCategories = async ({ set }: Context) => {
         try {
-            const categories = await this.categoryService.getAll();
+            const categories = await this.categoryService.getAll('user');
+            return apiResponse.success(set, categories);
+        } catch (error: any) {
+            logger.error(error);
+            return apiResponse.internalServerError(set, error.message);
+        }
+    };
+    getCategoriesAdmin = async ({ set }: Context) => {
+        try {
+            const categories = await this.categoryService.getAll('admin');
             return apiResponse.success(set, categories);
         } catch (error: any) {
             logger.error(error);
