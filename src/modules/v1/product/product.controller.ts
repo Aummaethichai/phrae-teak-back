@@ -121,9 +121,11 @@ export class ProductController {
   createProductAdmin = async ({ body, set, headers }: { body: any; set: Context["set"]; headers: Context["headers"] }) => {
     try {
       const { images, ...data } = body;
-
-      const categoryIds = Array.isArray(body.categoryId) 
-        ? body.categoryId 
+      if (!data.name.length) {
+        return apiResponse.badRequest(set, "Name is required");
+      }
+      const categoryIds = Array.isArray(body.categoryId)
+        ? body.categoryId
         : [body.categoryId];
 
       const product = await this.productService.createProductWithImages(

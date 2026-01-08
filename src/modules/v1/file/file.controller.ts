@@ -45,7 +45,8 @@ export class FileController {
                 if (fileExtension === '.png') set.headers['Content-Type'] = 'image/png';
                 if (fileExtension === '.jpg' || fileExtension === '.jpeg') set.headers['Content-Type'] = 'image/jpeg';
 
-                set.headers['Cache-Control'] = 'public, max-age=31536000'; // Cache ได้นานๆ เลยเพราะรูปไม่เปลี่ยน
+                // set.headers['Cache-Control'] = 'public, max-age=3600, must-revalidate'; // Cache ได้นานๆ เลยเพราะรูปไม่เปลี่ยน
+                set.headers['Cache-Control'] = "no-store, no-cache, must-revalidate, proxy-revalidate";
 
                 return stream;
             } else if (fileExtension === '.mp4') {

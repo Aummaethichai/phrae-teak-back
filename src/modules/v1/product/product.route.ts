@@ -34,6 +34,7 @@ export const productRoutes = new Elysia({ prefix: "/products" })
   .post("/admin", productController.createProductAdmin, {
     body: t.Object({
       name: t.String(),
+      // name: t.String({ minLength: 1, error: 'Name cannot be empty' }),
       description: t.Optional(t.String()),
       price: t.Numeric(),
       stock: t.Numeric(),
