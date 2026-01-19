@@ -13,7 +13,7 @@ export const categoryRoute = new Elysia({ prefix: "/category" })
         body: t.Object({
             name: t.String(),
             slug: t.String(),
-            // isActive: t.Boolean(),
+            isActive: t.Boolean(),
         }),
     })
     .put('/status', categoryController.updateStatusCategory, {
