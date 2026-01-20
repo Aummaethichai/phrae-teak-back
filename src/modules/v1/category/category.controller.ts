@@ -58,4 +58,21 @@ export class CategoryController {
             return apiResponse.internalServerError(set, error.message);
         }
     };
+    updateCategory = async ({body, set}: {body: any; set: Context["set"]}) => {
+        try {
+            const category = await this.categoryService.findById(parseInt(body.id));
+            if (!category) {
+                return apiResponse.notFound(set, "Category not found");
+            }
+            // const checkOldData = await this.categoryService.findById(parseInt(body.id));
+            // if (checkOldData) {
+            //     return apiResponse.badRequest(set, "Category already exists");
+            // }
+            const result_update = await this.categoryService.updateCategory(body);
+            return apiResponse.success(set, result_update);
+        } catch (error: any) {
+            logger.error(error);
+            return apiResponse.internalServerError(set, error.message);
+        }
+    }
 }

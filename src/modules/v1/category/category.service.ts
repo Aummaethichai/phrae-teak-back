@@ -43,6 +43,35 @@ export class CategoryService {
         })
     }
 
+    async updateCategory(data: {
+        id: number;
+        name: string;
+        slug: string;
+        isActive?: boolean;
+    }) {
+        const oldData = await prisma.category.findUnique({ where: { id: data.id } });
+
+        if (!oldData) throw new Error('Not Found');
+
+        const dataToUpdate: Record<string, any> = {};
+
+        for (const key in data) {
+            const typedKey = key as keyof typeof data;
+            if (data[typedKey] !== undefined && data[typedKey] !== oldData[typedKey]) {
+                dataToUpdate[typedKey] = data[typedKey];
+            }
+        }
+        
+        if (Object.keys(dataToUpdate).length === 0) {
+            return "Nothing changed!";
+        }
+        const updated = await prisma.category.update({
+            where: { id: data.id },
+            data: dataToUpdate
+        });
+        return updated;
+    }
+
     async updateStatusCategory(data: {
         id: number;
         isActive: boolean;
