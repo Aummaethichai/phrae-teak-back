@@ -58,7 +58,20 @@ export class CategoryController {
             return apiResponse.internalServerError(set, error.message);
         }
     };
-    reorderCategory = async ({ body, set }: { body: any; set: Context["set"]; }) => {
+    updateCategory = async ({body, set}: {body: any; set: Context["set"]}) => {
+        try {
+            const category = await this.categoryService.findById(parseInt(body.id));
+            if (!category) {
+                return apiResponse.notFound(set, "Category not found");
+            }
+            const result_update = await this.categoryService.updateCategory(body);
+            return apiResponse.success(set, result_update);
+        } catch (error: any) {
+            logger.error(error);
+            return apiResponse.internalServerError(set, error.message);
+        }
+    }
+     reorderCategory = async ({ body, set }: { body: any; set: Context["set"]; }) => {
         try {
             const { items } = body;
             const categories = await this.categoryService.reorderCategory(body);
@@ -70,5 +83,5 @@ export class CategoryController {
             logger.error(error);
             return apiResponse.internalServerError(set, error.message);
         }
-    };
+    }
 }

@@ -36,4 +36,23 @@ export const categoryRoute = new Elysia({ prefix: "/category" })
         }),
       ),
     }),
+  })
+  .put("/", categoryController.updateCategory, {
+    body: t.Object({
+      id: t.Number(),
+      name: t.Optional(t.String()),
+      slug: t.Optional(t.String()),
+      isActive: t.Optional(t.Boolean()),
+    }),
+  })
+  .put("/status", categoryController.updateStatusCategory, {
+    body: t.Object({
+      id: t.Numeric(),
+      isActive: t.Boolean(),
+    }),
+  })
+  .delete("/:id", categoryController.deleteCategory, {
+    params: t.Object({
+      id: t.String(),
+    }),
   });
