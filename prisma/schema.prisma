@@ -73,6 +73,7 @@ model Category {
   name      String
   slug      String    @unique
   isActive  Boolean   @default(false) @map("is_active")
+  sortOrder Int      @default(0) @map("sort_order")
   products    CategoryProduct[]
 
   createdAt DateTime  @default(now()) @map("created_at")

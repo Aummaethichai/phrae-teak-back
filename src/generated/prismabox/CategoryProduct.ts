@@ -40,6 +40,7 @@ export const CategoryProductRelations = t.Object(
         name: t.String(),
         slug: t.String(),
         isActive: t.Boolean(),
+        sortOrder: t.Integer(),
         createdAt: t.Date(),
         updatedAt: t.Date(),
       },

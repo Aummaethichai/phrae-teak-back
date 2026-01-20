@@ -58,4 +58,17 @@ export class CategoryController {
             return apiResponse.internalServerError(set, error.message);
         }
     };
+    reorderCategory = async ({ body, set }: { body: any; set: Context["set"]; }) => {
+        try {
+            const { items } = body;
+            const categories = await this.categoryService.reorderCategory(body);
+            if(!categories){
+                return apiResponse.notFound(set, "Category not found");
+            }
+            return apiResponse.success(set, `เรียงลำดับสำเร็จ`);
+        } catch (error: any) {
+            logger.error(error);
+            return apiResponse.internalServerError(set, error.message);
+        }
+    };
 }

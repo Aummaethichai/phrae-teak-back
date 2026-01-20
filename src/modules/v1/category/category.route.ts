@@ -5,25 +5,35 @@ import { CategoryController } from "./category.controller";
 const categoryController = new CategoryController();
 
 export const categoryRoute = new Elysia({ prefix: "/category" })
-    .get('/', categoryController.getCategories)
-    .use(isAuthenticated)
-    .use(isAdmin)
-    .get('/admin/', categoryController.getCategoriesAdmin)
-    .post('/', categoryController.createCategory, {
-        body: t.Object({
-            name: t.String(),
-            slug: t.String(),
-            isActive: t.Boolean(),
+  .get("/", categoryController.getCategories)
+  .use(isAuthenticated)
+  .use(isAdmin)
+  .get("/admin/", categoryController.getCategoriesAdmin)
+  .post("/", categoryController.createCategory, {
+    body: t.Object({
+      name: t.String(),
+      slug: t.String(),
+      isActive: t.Boolean(),
+    }),
+  })
+  .put("/status", categoryController.updateStatusCategory, {
+    body: t.Object({
+      id: t.Numeric(),
+      isActive: t.Boolean(),
+    }),
+  })
+  .delete("/:id", categoryController.deleteCategory, {
+    params: t.Object({
+      id: t.String(),
+    }),
+  })
+  .put("/reorder", categoryController.reorderCategory, {
+    body: t.Object({
+      items: t.Array(
+        t.Object({
+          id: t.Number(), // หรือ String ตาม ID ของคุณ
+          sortOrder: t.Number(),
         }),
-    })
-    .put('/status', categoryController.updateStatusCategory, {
-        body: t.Object({
-            id: t.Numeric(),
-            isActive: t.Boolean(),
-        },),
-    })
-    .delete('/:id', categoryController.deleteCategory, {
-        params: t.Object({
-            id: t.String(),
-        }),
-    })
+      ),
+    }),
+  });
