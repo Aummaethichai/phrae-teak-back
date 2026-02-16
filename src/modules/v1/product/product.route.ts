@@ -43,4 +43,10 @@ export const productRoutes = new Elysia({ prefix: "/products" })
       leadTime: t.Optional(t.Numeric()),
       images: t.Files()
     })
+  })
+  .get('/admin', productController.getProductsAdmin, {
+    query: t.Object({
+      page: t.Optional(t.String()),
+      limit: t.Optional(t.String()),
+    })
   });

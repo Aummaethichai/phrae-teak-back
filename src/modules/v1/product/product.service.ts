@@ -1,49 +1,134 @@
 import { prisma } from "../../../config/prisma";
-import { ProductPlain, ProductPlainInputCreate, ProductPlainInputUpdate } from "../../../generated/prismabox/Product";
+import {
+  ProductPlain,
+  ProductPlainInputCreate,
+  ProductPlainInputUpdate,
+} from "../../../generated/prismabox/Product";
 import { ProductImageRelationsInputCreate } from "../../../generated/prismabox/ProductImage";
 import { uploadFile } from "../../../utils/files";
 import { CreateProductDTO } from "./product.schema";
 
 export class ProductService {
   // ดึงสินค้าทั้งหมด
-  async getAll() {
-    return await prisma.product.findMany({
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        price: true,
-        stock: true,
-        isPreorder: true,
-        leadTime: true,
-        isActive: true,
-        // createdAt:false,
-        // updatedAt:false,
-        images: {
-          orderBy: { sortOrder: 'asc' },
-          select: {
-            id: true,
-            productId: true,
-            url: true,
-            sortOrder: true,
-            isMain: true,
-            // createdAt:false,
-          }
-        },
-        categories: {
-          select: {
-            category: {
-              select: {
-                id: true,
-                name: true,
-                slug: true,
-              }
+  async getAll(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+
+    const [products, total] = await prisma.$transaction([
+      prisma.product.findMany({
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          price: true,
+          stock: true,
+          isPreorder: true,
+          leadTime: true,
+          isActive: true,
+          // createdAt:false,
+          // updatedAt:false,
+          images: {
+            orderBy: { sortOrder: "asc" },
+            select: {
+              id: true,
+              productId: true,
+              url: true,
+              sortOrder: true,
+              isMain: true,
+              // createdAt:false,
             },
-          }
-        }
-      }
-    });
+          },
+          categories: {
+            select: {
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+        },
+        where: {
+          isActive: true,
+        },
+      }),
+      prisma.product.count({
+        where: {
+          isActive: true,
+        },
+      }),
+    ]);
+
+    return {
+      data: products,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getAllAdmin(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
+
+    const [products, total] = await prisma.$transaction([
+      prisma.product.findMany({
+        skip,
+        take: limit,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          price: true,
+          stock: true,
+          isPreorder: true,
+          leadTime: true,
+          isActive: true,
+          // createdAt:false,
+          // updatedAt:false,
+          images: {
+            orderBy: { sortOrder: "asc" },
+            select: {
+              id: true,
+              productId: true,
+              url: true,
+              sortOrder: true,
+              isMain: true,
+              // createdAt:false,
+            },
+          },
+          categories: {
+            select: {
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+        },
+      }),
+      prisma.product.count(),
+    ]);
+
+    return {
+      data: products,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   // ดึงสินค้าตาม ID
@@ -52,10 +137,10 @@ export class ProductService {
       where: { id },
       include: {
         images: {
-          orderBy: { sortOrder: 'asc' }
+          orderBy: { sortOrder: "asc" },
         },
-        categories: true
-      }
+        categories: true,
+      },
     });
   }
 
@@ -69,10 +154,10 @@ export class ProductService {
         stock: data.stock ?? 0,
         categories: {
           create: {
-            categoryId: data.categoryId
-          }
+            categoryId: data.categoryId,
+          },
         },
-      }
+      },
     });
   }
 
@@ -82,15 +167,15 @@ export class ProductService {
       where: { id },
       data: {
         ...data,
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     });
   }
 
   // ลบสินค้า
   async delete(id: number) {
     return await prisma.product.delete({
-      where: { id }
+      where: { id },
     });
   }
 
@@ -104,7 +189,7 @@ export class ProductService {
       isPreorder?: boolean;
       leadTime?: number;
     },
-    files: File[]
+    files: File[],
   ) {
     const uploadedImages = [];
     if (files && Array.isArray(files)) {
@@ -113,7 +198,7 @@ export class ProductService {
         uploadedImages.push({
           url: path,
           sortOrder: index,
-          isMain: index === 0
+          isMain: index === 0,
         });
       }
     } else if (files) {
@@ -122,7 +207,7 @@ export class ProductService {
       uploadedImages.push({
         url: path,
         sortOrder: 0,
-        isMain: true
+        isMain: true,
       });
     }
 
@@ -137,22 +222,22 @@ export class ProductService {
         stock: data.stock ?? 0,
         categories: {
           create: data.categoryId.map((item: any, index: number) => {
-            const catId = typeof item === 'object' ? item.id : item;
+            const catId = typeof item === "object" ? item.id : item;
             return {
               category: {
                 connect: {
-                  id: Number(catId)
-                }
+                  id: Number(catId),
+                },
               },
-              sortOrder: index
+              sortOrder: index,
             };
-          })
+          }),
         },
         isPreorder: data.isPreorder ?? false,
         leadTime: data.leadTime,
         images: {
-          create: uploadedImages
-        }
+          create: uploadedImages,
+        },
       },
       select: {
         id: true,
@@ -167,20 +252,20 @@ export class ProductService {
           select: {
             id: true,
             categoryId: true,
-          }
+          },
         },
         images: {
           select: {
             id: true,
             url: true,
             sortOrder: true,
-            isMain: true
+            isMain: true,
           },
           orderBy: {
-            sortOrder: 'asc'
-          }
-        }
-      }
+            sortOrder: "asc",
+          },
+        },
+      },
     });
   }
 }

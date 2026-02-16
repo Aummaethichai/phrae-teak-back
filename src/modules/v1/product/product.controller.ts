@@ -9,7 +9,7 @@ import { apiResponse } from "../../../utils/response";
 
 import { CreateProductDTO } from "./product.schema";
 
-type AuthUser = { user: { id: string; role: 'ADMIN' | 'USER' } };
+type AuthUser = { user: { id: string; role: "ADMIN" | "USER" } };
 
 type baseProductContext = {
   params: { id: string };
@@ -29,25 +29,33 @@ export class ProductController {
   private productService = new ProductService();
 
   // GET /api/v1/products
-  getProducts = async ({ set, headers }: Context) => {
+  getProducts = async ({ query, set, headers }: Context) => {
     try {
-      const products = await this.productService.getAll();
-      const protocol =
-        process.env.APP_ENV === 'development' ? 'http' : 'https';
-      const hostName = headers['host'];
+      const page = Number(query.page) || 1;
+      const limit = Number(query.limit) || 10;
+      const { data: products, meta } = await this.productService.getAll(
+        page,
+        limit,
+      );
+      const protocol = process.env.APP_ENV === "development" ? "http" : "https";
+      const hostName = headers["host"];
 
-      const response = products.map(product => {
+      const responseData = products.map((product) => {
         return {
           ...product,
-          images: product.images.map(image => {
+          images: product.images.map((image) => {
             return {
               ...image,
-              url: `${protocol}://${hostName}/api/v1/files/${image.id}`
-            }
-          })
-        }
-      })
-      return apiResponse.success(set, response);
+              url: `${protocol}://${hostName}/api/v1/files/${image.id}`,
+            };
+          }),
+        };
+      });
+
+      return apiResponse.success(set, {
+        products: responseData,
+        _metadata: meta,
+      });
     } catch (error: any) {
       logger.error(error.message);
       return apiResponse.internalServerError(set, error.message);
@@ -83,7 +91,11 @@ export class ProductController {
   };
 
   // PATCH /api/v1/products/:id
-  updateProduct = async ({ params, body, set }: updateProductContext & AuthUser) => {
+  updateProduct = async ({
+    params,
+    body,
+    set,
+  }: updateProductContext & AuthUser) => {
     try {
       const id = Number(params.id);
       const updatedProduct = await this.productService.update(id, body);
@@ -95,7 +107,11 @@ export class ProductController {
   };
 
   // DELETE /api/v1/products/:id
-  deleteProduct = async ({ params, set, user }: baseProductContext & AuthUser) => {
+  deleteProduct = async ({
+    params,
+    set,
+    user,
+  }: baseProductContext & AuthUser) => {
     try {
       console.log(user);
 
@@ -118,7 +134,15 @@ export class ProductController {
   };
 
   // POST /api/v1/products/admin
-  createProductAdmin = async ({ body, set, headers }: { body: any; set: Context["set"]; headers: Context["headers"] }) => {
+  createProductAdmin = async ({
+    body,
+    set,
+    headers,
+  }: {
+    body: any;
+    set: Context["set"];
+    headers: Context["headers"];
+  }) => {
     try {
       const { images, ...data } = body;
       if (!data.name.length) {
@@ -138,26 +162,59 @@ export class ProductController {
           isPreorder: Boolean(data.isPreorder),
           leadTime: data.leadTime ? Number(data.leadTime) : undefined,
         },
-        images
+        images,
       );
 
-      const protocol =
-        process.env.APP_ENV === 'development' ? 'http' : 'https';
-      const hostName = headers['host'];
+      const protocol = process.env.APP_ENV === "development" ? "http" : "https";
+      const hostName = headers["host"];
 
       const response = {
         ...product,
-        images: product.images.map(image => {
+        images: product.images.map((image) => {
           return {
             ...image,
-            url: `${protocol}://${hostName}/api/v1/files/${image.id}`
-          }
-        })
+            url: `${protocol}://${hostName}/api/v1/files/${image.id}`,
+          };
+        }),
       };
 
       return apiResponse.created(set, response);
     } catch (error: any) {
       logger.error(error);
+      return apiResponse.internalServerError(set, error.message);
+    }
+  };
+
+  getProductsAdmin = async ({ query, set, headers }: Context) => {
+    try {
+      const page = Number(query.page) || 1;
+      const limit = Number(query.limit) || 10;
+
+      const { data: products, meta } = await this.productService.getAllAdmin(
+        page,
+        limit,
+      );
+      const protocol = process.env.APP_ENV === "development" ? "http" : "https";
+      const hostName = headers["host"];
+
+      const responseData = products.map((product) => {
+        return {
+          ...product,
+          images: product.images.map((image) => {
+            return {
+              ...image,
+              url: `${protocol}://${hostName}/api/v1/files/${image.id}`,
+            };
+          }),
+        };
+      });
+
+      return apiResponse.success(set, {
+        products: responseData,
+        _metadata: meta,
+      });
+    } catch (error: any) {
+      logger.error(error.message);
       return apiResponse.internalServerError(set, error.message);
     }
   };
