@@ -46,6 +46,12 @@ enum PaymentStatus {
   REJECTED
 }
 
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
 model User {
   id           Int           @id @default(autoincrement()) @map("user_id")
   email        String        @unique
@@ -102,9 +108,10 @@ model Product {
   cartItems   CartItem[]
   orderItems  OrderItem[]
 
+  isActive    Boolean  @default(false) @map("is_active")
+  status      ProductStatus @default(DRAFT) @map("status") 
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  isActive    Boolean  @default(false) @map("is_active")
   @@map("products")
 }
 

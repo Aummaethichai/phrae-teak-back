@@ -268,4 +268,38 @@ export class ProductService {
       },
     });
   }
+
+  async getProductAdminById(id: number) {
+    const product = await prisma.product.findUnique({
+      where: { id },
+      include: {
+        images: {
+            orderBy: { sortOrder: "asc" },
+            select: {
+              id: true,
+              productId: true,
+              url: true,
+              sortOrder: true,
+              isMain: true,
+              // createdAt:false,
+            },
+          },
+          categories: {
+            select: {
+              category: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                },
+              },
+            },
+          },
+      },
+    });
+
+    return {
+      data: product,
+    };
+  }
 }

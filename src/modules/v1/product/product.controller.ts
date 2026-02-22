@@ -218,4 +218,33 @@ export class ProductController {
       return apiResponse.internalServerError(set, error.message);
     }
   };
+
+  getProductAdminById = async ({ params, set, headers }: baseProductContext) => {
+    try {
+      const id = Number(params.id);
+      const { data: product } = await this.productService.getProductAdminById(id);
+
+      if (!product) {
+        return apiResponse.badRequest(set, "Product not found");
+      }
+
+      const protocol = process.env.APP_ENV === "development" ? "http" : "https";
+      const hostName = headers["host"];
+
+      const responseData = {
+        ...product,
+        images: product.images.map((image) => {
+          return {
+            ...image,
+            url: `${protocol}://${hostName}/api/v1/files/${image.id}`,
+          };
+        }),
+      };
+
+      return apiResponse.success(set, responseData);
+    } catch (error: any) {
+      logger.error(error.message);
+      return apiResponse.internalServerError(set, error.message);
+    }
+  };
 }

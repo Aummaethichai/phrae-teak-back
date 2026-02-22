@@ -49,4 +49,7 @@ export const productRoutes = new Elysia({ prefix: "/products" })
       page: t.Optional(t.String()),
       limit: t.Optional(t.String()),
     })
-  });
+  })
+  .get('/admin/:id', productController.getProductAdminById, {
+    params: t.Object({ id: t.String() }),
+  })
